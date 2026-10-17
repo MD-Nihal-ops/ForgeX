@@ -1,0 +1,339 @@
+.block-container {
+    max-width: 1440px;
+    padding-top: 2.15rem;
+    padding-bottom: 4rem;
+}
+
+[data-testid="stSidebar"] {
+    border-right: 1px solid #dfe6ef;
+}
+
+[data-testid="stSidebar"] .block-container {
+    padding-top: 1.35rem;
+}
+
+.brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.25rem 0 0.9rem;
+}
+
+.brand-mark {
+    display: grid;
+    width: 2.65rem;
+    height: 2.65rem;
+    place-items: center;
+    border-radius: 0.75rem;
+    background: #1769aa;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+}
+
+.brand-title {
+    color: #12243a;
+    font-size: 1.35rem;
+    font-weight: 750;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+}
+
+.brand-caption,
+.eyebrow {
+    color: #64748b;
+    font-size: 0.67rem;
+    font-weight: 750;
+    letter-spacing: 0.12em;
+}
+
+.page-heading {
+    margin-bottom: 1.65rem;
+}
+
+.page-heading h1 {
+    margin: 0.25rem 0 0;
+    color: #12243a;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 760;
+    letter-spacing: -0.055em;
+}
+
+.page-subtitle {
+    margin-top: 0.35rem;
+    color: #52657a;
+    font-size: 1.05rem;
+}
+
+.stChatMessage {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: #fff;
+}
+
+.stChatInput {
+    border-color: #b8cadd;
+}
+
+.engineering-disclaimer {
+    position: sticky;
+    bottom: 0.5rem;
+    z-index: 1;
+}
+
+.stage-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin: 0.8rem 0 1.25rem;
+}
+
+.stage-number {
+    display: grid;
+    flex: 0 0 2.55rem;
+    height: 2.55rem;
+    place-items: center;
+    border: 1px solid #c8d9e9;
+    border-radius: 0.7rem;
+    background: #edf5fb;
+    color: #1769aa;
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.stage-heading h2 {
+    margin: 0;
+    color: #12243a;
+    font-size: 1.55rem;
+    letter-spacing: -0.035em;
+}
+
+.stage-heading p {
+    margin: 0.25rem 0 0;
+    color: #64748b;
+    font-size: 0.94rem;
+}
+
+.workflow-stage {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 2.45rem;
+    margin: 0.12rem 0;
+    padding: 0.35rem 0.55rem;
+    border-radius: 0.55rem;
+    color: #64748b;
+    font-size: 0.88rem;
+}
+
+.workflow-stage.stage-current {
+    background: #edf5fb;
+    color: #14598e;
+    font-weight: 700;
+}
+
+.workflow-stage.stage-complete {
+    color: #2f6e52;
+}
+
+.stage-marker {
+    display: inline-grid;
+    width: 1.55rem;
+    height: 1.55rem;
+    place-items: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    color: inherit;
+    font-size: 0.68rem;
+    font-weight: 750;
+}
+
+.stage-complete .stage-marker {
+    border-color: #add6bd;
+    background: #eff8f2;
+}
+
+.connection-state {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.45rem 0 0.9rem;
+    color: #52657a;
+    font-size: 0.77rem;
+}
+
+.connection-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: #94a3b8;
+}
+
+.connection-online .connection-dot {
+    background: #258457;
+}
+
+.connection-offline .connection-dot {
+    background: #c2413a;
+}
+
+.engineering-disclaimer {
+    margin: 0.85rem 0 1.2rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #ead5a8;
+    border-left: 4px solid #bd8125;
+    border-radius: 0.45rem;
+    background: #fffaf0;
+    color: #564626;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.question-card {
+    height: 100%;
+    min-height: 5rem;
+    margin: 0.25rem 0 0.8rem;
+    padding: 0.85rem;
+    border: 1px solid #dce5ee;
+    border-radius: 0.55rem;
+    background: #fff;
+    color: #334155;
+    font-size: 0.86rem;
+}
+
+.question-label {
+    margin-bottom: 0.35rem;
+    color: #1769aa;
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.45rem;
+    padding: 0.16rem 0.58rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.055em;
+    line-height: 1.1;
+}
+
+.status-blocked,
+.status-infeasible {
+    border-color: #f1c2c0;
+    background: #fff0ef;
+    color: #a52d27;
+}
+
+.status-review,
+.status-draft,
+.status-unverified {
+    border-color: #ead5a8;
+    background: #fff8e8;
+    color: #8b5a0a;
+}
+
+.status-estimated,
+.status-proposed {
+    border-color: #c6d9ee;
+    background: #eff6fd;
+    color: #255e91;
+}
+
+.status-ready,
+.status-created,
+.status-selected,
+.status-verified,
+.status-pass {
+    border-color: #b7dcc6;
+    background: #edf8f1;
+    color: #26734a;
+}
+
+.status-fail {
+    border-color: #f1c2c0;
+    background: #fff0ef;
+    color: #a52d27;
+}
+
+.review-banner,
+.recommended-panel {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0.8rem 0 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #dce5ee;
+    border-radius: 0.65rem;
+    background: #fff;
+    color: #334155;
+    line-height: 1.45;
+}
+
+.recommended-panel {
+    display: block;
+    border-color: #b9d3e8;
+    background: linear-gradient(110deg, #f0f7fc, #fff);
+}
+
+.recommended-panel h2 {
+    margin: 0.35rem 0;
+    color: #123b5d;
+    font-size: 1.5rem;
+}
+
+.recommended-panel p {
+    margin: 0.15rem 0 0.6rem;
+    color: #52657a;
+    font-size: 0.86rem;
+}
+
+.recommendation-label {
+    margin: 0.4rem 0;
+    color: #1769aa;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+[data-testid="stMetric"] {
+    min-height: 5.1rem;
+    padding: 0.7rem 0.75rem;
+    border: 1px solid #e3eaf1;
+    border-radius: 0.55rem;
+    background: #f8fafc;
+}
+
+[data-testid="stMetricLabel"] {
+    color: #64748b;
+    font-size: 0.74rem;
+}
+
+[data-testid="stMetricValue"] {
+    color: #152a40;
+    font-size: 1.25rem;
+}
+
+[data-testid="stDataFrame"] {
+    border: 1px solid #e3eaf1;
+    border-radius: 0.55rem;
+}
+
+@media (max-width: 800px) {
+    .block-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .review-banner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

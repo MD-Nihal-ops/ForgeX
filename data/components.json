@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "value_class": "reference_estimate",
+  "disclaimer": "Hobby-servo envelopes used for closed-form torque/mass/cost estimates. Clone-to-clone listings disagree. These are not stall-torque curves, not dynamometer data, and not manufacturer specifications.",
+  "records": [
+    {
+      "name": "SG90 servo",
+      "torque_kg_cm": 1.8,
+      "operating_voltage": "about 4.8-6.0 V (typical hobby range, not a datasheet rating)",
+      "mass_kg": 0.009,
+      "approximate_cost_usd": 3,
+      "dimensions_mm": {
+        "length": 23,
+        "width": 12,
+        "height": 29
+      },
+      "source_note": "REFERENCE ESTIMATE (ESTIMATED). Rounded figures commonly repeated for SG90-class micro servos. Not a Tower Pro (or any OEM) specification. Torque is a hobby-listing kg·cm number, not a verified stall torque."
+    },
+    {
+      "name": "MG996R servo",
+      "torque_kg_cm": 10,
+      "operating_voltage": "about 4.8-7.2 V (typical hobby range, not a datasheet rating)",
+      "mass_kg": 0.055,
+      "approximate_cost_usd": 10,
+      "dimensions_mm": {
+        "length": 40,
+        "width": 19,
+        "height": 43
+      },
+      "source_note": "REFERENCE ESTIMATE (ESTIMATED). Rounded figures commonly repeated for MG996R-class metal-gear hobby servos. Not a Tower Pro (or any OEM) specification. Actual stall torque, current, and size vary by clone."
+    }
+  ],
+  "robotic_arm_records": []
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "template_id": "wrap_around_roller_gripper",
+  "name": "Wrap-around roller gripper",
+  "value_class": "reference_estimate",
+  "disclaimer": "Nominal reference geometry for deterministic screening only. Rollers are conceptual; no bearing, rotation, contact, or wrap geometry is generated or simulated.",
+  "parameters": {
+    "finger_count": 2,
+    "finger_length_mm": 50.0,
+    "finger_width_mm": 15.0,
+    "finger_thickness_mm": 5.0,
+    "contact_area_mm2": 750.0,
+    "friction_coefficient": 0.3,
+    "material": "PETG",
+    "servo_mount_type": "standard_horn_roller_linkage",
+    "estimated_volume_cm3": 16.0,
+    "servo_lever_arm_mm": 6.0,
+    "print_speed_cm3_per_hour": 8.0
+  },
+  "parameter_sources": {
+    "finger_count": "Reference concept: two opposed wrap-around roller arms.",
+    "finger_length_mm": "Nominal hobby-part layout estimate; not optimized.",
+    "finger_width_mm": "Nominal hobby-part layout estimate; not optimized.",
+    "finger_thickness_mm": "Nominal hobby-part layout estimate; not validated.",
+    "contact_area_mm2": "Nominal wrap contact patch estimate; actual contact requires geometry and testing.",
+    "friction_coefficient": "Illustrative PETG roller-contact reference estimate; actual friction is surface- and load-dependent.",
+    "material": "Template material selection; properties are reference estimates from the materials catalog.",
+    "servo_mount_type": "Concept label only; no roller, bearing, or mount geometry is generated.",
+    "estimated_volume_cm3": "Whole printed-part volume reference estimate; not CAD-derived.",
+    "servo_lever_arm_mm": "Nominal servo horn linkage radius reference estimate; not a verified mechanism ratio.",
+    "print_speed_cm3_per_hour": "Illustrative volumetric FDM throughput estimate; not printer-profile data."
+  }
+}

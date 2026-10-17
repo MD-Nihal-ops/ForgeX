@@ -1,0 +1,1 @@
+"""Calculation result models."""

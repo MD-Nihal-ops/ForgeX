@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "template_id": "two_finger_rigid_gripper",
+  "name": "Two-finger rigid gripper",
+  "value_class": "reference_estimate",
+  "disclaimer": "Nominal reference geometry for deterministic screening only. Not optimized, tolerance-checked, experimentally validated, simulated, or generated CAD.",
+  "parameters": {
+    "finger_count": 2,
+    "finger_length_mm": 45.0,
+    "finger_width_mm": 12.0,
+    "finger_thickness_mm": 6.0,
+    "contact_area_mm2": 420.0,
+    "friction_coefficient": 0.35,
+    "material": "PETG",
+    "servo_mount_type": "standard_horn_linkage",
+    "estimated_volume_cm3": 12.0,
+    "servo_lever_arm_mm": 5.5,
+    "print_speed_cm3_per_hour": 8.0
+  },
+  "parameter_sources": {
+    "finger_count": "Reference concept: opposed two-jaw gripper.",
+    "finger_length_mm": "Nominal hobby-part layout estimate; not optimized.",
+    "finger_width_mm": "Nominal hobby-part layout estimate; not optimized.",
+    "finger_thickness_mm": "Nominal hobby-part layout estimate; not validated.",
+    "contact_area_mm2": "Nominal flat contact patch estimate; not a measured interface.",
+    "friction_coefficient": "Illustrative PETG contact reference estimate; actual friction is surface- and load-dependent.",
+    "material": "Template material selection; properties are reference estimates from the materials catalog.",
+    "servo_mount_type": "Concept label only; no mount geometry is generated.",
+    "estimated_volume_cm3": "Whole printed-part volume reference estimate; not CAD-derived.",
+    "servo_lever_arm_mm": "Nominal servo horn linkage radius reference estimate; not a verified mechanism ratio.",
+    "print_speed_cm3_per_hour": "Illustrative volumetric FDM throughput estimate; not printer-profile data."
+  }
+}

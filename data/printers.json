@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "value_class": "manufacturer_specification",
+  "disclaimer": "Only manufacturer-identified machine records belong here. No construction 3D printer specifications have been provided to ForgeX.",
+  "records": []
+}

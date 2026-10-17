@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "value_class": "reference_estimate",
+  "disclaimer": "Rounded order-of-magnitude values for closed-form estimates only. Not manufacturer datasheets, not coupon-test results, and not a basis for certification. FDM printed-part strength varies with orientation, infill, temperature, and moisture.",
+  "records": [
+    {
+      "name": "PLA",
+      "density_kg_m3": 1240,
+      "yield_strength_mpa": 35,
+      "tensile_strength_mpa": 50,
+      "cost_per_kg_usd": 20,
+      "printability_notes": "FDM-printable hobby filament. Low warp; brittle relative to PETG/ABS. Poor high-temperature service.",
+      "typical_use_cases": [
+        "Prototypes",
+        "Low-load gripper jaws",
+        "Jigs and fixtures"
+      ],
+      "source_note": "REFERENCE ESTIMATE (ESTIMATED). Rounded typical FDM-printed PLA ranges from hobby/literature summaries, not a grade-specific datasheet. Do not treat as a tested or certified property set."
+    },
+    {
+      "name": "PETG",
+      "density_kg_m3": 1270,
+      "yield_strength_mpa": 30,
+      "tensile_strength_mpa": 45,
+      "cost_per_kg_usd": 25,
+      "printability_notes": "FDM-printable. Tougher and more heat-tolerant than PLA; stringing and moisture uptake are common.",
+      "typical_use_cases": [
+        "Functional gripper jaws",
+        "Brackets",
+        "Parts that need some flex"
+      ],
+      "source_note": "REFERENCE ESTIMATE (ESTIMATED). Rounded typical FDM-printed PETG ranges, not a manufacturer specification. Printed coupons vary widely; not verified in this repository."
+    },
+    {
+      "name": "ABS",
+      "density_kg_m3": 1050,
+      "yield_strength_mpa": 28,
+      "tensile_strength_mpa": 40,
+      "cost_per_kg_usd": 22,
+      "printability_notes": "FDM-printable with an enclosed/warm chamber. Warp and fumes are common. Better temperature resistance than PLA.",
+      "typical_use_cases": [
+        "Enclosures",
+        "Light structural brackets",
+        "Parts near modest heat"
+      ],
+      "source_note": "REFERENCE ESTIMATE (ESTIMATED). Rounded typical FDM-printed ABS ranges, not a resin grade datasheet. Not a test-lab result."
+    },
+    {
+      "name": "Nylon",
+      "density_kg_m3": 1140,
+      "yield_strength_mpa": 40,
+      "tensile_strength_mpa": 55,
+      "cost_per_kg_usd": 40,
+      "printability_notes": "FDM-printable PA-class filament if kept dry. Strong warp tendency; properties change with absorbed moisture.",
+      "typical_use_cases": [
+        "Tougher living hinges and clips",
+        "Higher-wear printed interfaces"
+      ],
+      "source_note": "REFERENCE ESTIMATE (ESTIMATED). Coarse PA6/PA12 printed-part band only. Individual nylon grades differ a lot; this is not a precise manufacturer specification."
+    },
+    {
+      "name": "Aluminum 6061",
+      "density_kg_m3": 2700,
+      "yield_strength_mpa": 270,
+      "tensile_strength_mpa": 310,
+      "cost_per_kg_usd": 8,
+      "printability_notes": "Not FDM-printable. Included as a wrought-stock comparison only (typical 6061-T6 order of magnitude). ForgeX v1 manufacture remains fdm_3d_print.",
+      "typical_use_cases": [
+        "Comparison baseline for printed brackets",
+        "Bought-item plates or standoffs outside the printed BOM"
+      ],
+      "source_note": "REFERENCE ESTIMATE (ESTIMATED). Rounded 6061-T6 handbook order-of-magnitude values, not a mill cert and not a measured bar. Cost is a coarse bulk-stock figure in USD/kg."
+    }
+  ],
+  "residential_records": [
+    {
+      "name": "C25/30 Concrete",
+      "density_kg_m3": null,
+      "cost_per_kg_usd": null,
+      "characteristic_strength_cylinder_mpa": 25,
+      "characteristic_strength_cube_mpa": 30,
+      "source_note": "The C25/30 class designation expresses characteristic cylinder/cube strengths of 25/30 MPa. This is not a project-specific mix design or batch certificate. Density and local unit cost were not supplied in the catalog."
+    },
+    {
+      "name": "Mortar",
+      "density_kg_m3": null,
+      "cost_per_kg_usd": null,
+      "characteristic_strength_cylinder_mpa": null,
+      "characteristic_strength_cube_mpa": null,
+      "source_note": "Generic mortar record only. No mortar class, manufacturer, density, characteristic strength, or regional price was supplied."
+    }
+  ]
+}

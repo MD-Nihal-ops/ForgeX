@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en" class="dark h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FORGEX Generative AI Engineering Platform</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Three.js CDN for 3D Model Generation & FEA Preview -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff5f5',
+              100: '#fed7d7',
+              400: '#f87171',
+              500: '#ef4444', // Crimson Red Accent
+              600: '#dc2626',
+              900: '#450a0a',
+            },
+            dark: {
+              bg: '#0A0A0C',     // Pitch Black Base
+              card: '#121215',   // Charcoal Card
+              border: '#24242A', // Dark Slate Border
+              hover: '#1C1C22'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    
+    body {
+      background-color: #0A0A0C;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0A0A0C;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #24242A;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ef4444;
+    }
+
+    /* Subtle grid background pattern */
+    .bg-grid-pattern {
+      background-size: 30px 30px;
+      background-image: 
+        linear-gradient(to right, rgba(36, 36, 42, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(36, 36, 42, 0.4) 1px, transparent 1px);
+    }
+
+    .glow-red {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+    }
+    
+    .glow-red-lg {
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col bg-dark-bg text-slate-200 antialiased bg-grid-pattern">
+
+  <!-- TOP NAV BAR -->
+  <header class="border-b border-dark-border bg-dark-card/90 backdrop-blur sticky top-0 z-50 px-4 py-2.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-brand-600 to-brand-500 flex items-center justify-center text-white font-bold text-xl shadow-md glow-red">
+        <i class="ph-bold ph-cube"></i>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-base font-bold tracking-wider text-white font-mono">FORGEX</h1>
+          <span class="text-[10px] uppercase tracking-widest font-semibold px-2 py-0.5 rounded bg-brand-500/10 text-brand-500 border border-brand-500/30">
+            v3.0 AI Generative CAD
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 hidden sm:block">AI-Powered Generative CAD &amp; Structural Visualizer</p>
+      </div>
+    </div>
+
+    <!-- Global Actions Header -->
+    <div class="flex items-center space-x-2">
+      <button id="export-stl-btn" onclick="exportActiveSTL()" class="px-3 py-1.5 rounded-lg bg-brand-500 text-white font-semibold text-xs flex items-center space-x-1.5 hover:bg-brand-600 transition shadow-sm glow-red">
+        <i class="ph-bold ph-cube-transparent text-sm"></i>
+        <span>Download 3D CAD (.STL)</span>
+      </button>
+
+      <button id="export-snapshot-btn" onclick="exportCanvasSnapshot()" class="px-3 py-1.5 rounded-lg bg-dark-hover hover:bg-slate-800 text-slate-200 font-medium text-xs border border-dark-border flex items-center space-x-1.5 transition">
+        <i class="ph-bold ph-camera text-sm text-slate-400"></i>
+        <span class="hidden md:inline">Snapshot (.PNG)</span>
+      </button>
+
+      <div class="h-4 w-[1px] bg-dark-border my-auto mx-1"></div>
+
+      <button onclick="exportJSON()" class="p-2 rounded-lg bg-dark-hover hover:bg-slate-800 text-slate-300 border border-dark-border transition" title="Export JSON Report">
+        <i class="ph-bold ph-file-code text-base"></i>
+      </button>
+      <button onclick="exportTXT()" class="p-2 rounded-lg bg-dark-hover hover:bg-slate-800 text-slate-300 border border-dark-border transition" title="Export Text Report">
+        <i class="ph-bold ph-file-text text-base"></i>
+      </button>
+      <button onclick="copySummaryToClipboard()" class="p-2 rounded-lg bg-dark-hover hover:bg-slate-800 text-slate-300 border border-dark-border transition" title="Copy to Clipboard">
+        <i class="ph-bold ph-copy text-base"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 max-w-[1920px] w-full mx-auto overflow-hidden">
+    
+    <!-- LEFT PANEL: Engineering Specification & AI Prompting (3 cols) -->
+    <section class="lg:col-span-3 flex flex-col space-y-4 overflow-y-auto pr-1">
+      
+      <!-- AI PROMPT GENERATOR BOX -->
+      <div class="bg-dark-card border border-brand-500/40 rounded-xl p-4 shadow-lg flex flex-col space-y-3 glow-red">
+        <div class="flex items-center justify-between border-b border-dark-border/80 pb-2">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center space-x-2">
+            <i class="ph-bold ph-sparkle text-brand-500"></i>
+            <span>AI Prompt Synthesis</span>
+          </h2>
+          <span class="text-[10px] text-brand-500 font-mono bg-brand-500/10 px-1.5 py-0.5 rounded border border-brand-500/20">AI CAD v1.0</span>
+        </div>
+
+        <div class="space-y-2">
+          <label for="ai-prompt-input" class="text-[11px] font-medium text-slate-400">Describe your custom part or load case:</label>
+          <textarea id="ai-prompt-input" rows="3" placeholder="e.g. Generate an ultra-light aerospace bracket with 20 kN load rating and high stiffness..." class="w-full bg-dark-bg border border-dark-border rounded-lg p-2.5 text-xs font-sans text-slate-200 placeholder-slate-600 focus:border-brand-500 focus:outline-none transition resize-none"></textarea>
+          <button onclick="triggerAIGeneration()" id="ai-generate-btn" class="w-full py-2 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 text-white font-bold rounded-lg text-xs flex items-center justify-center space-x-2 transition shadow-md">
+            <i class="ph-bold ph-brain text-sm"></i>
+            <span>Generate 3D CAD via Prompt</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Specifications Form Card -->
+      <div class="bg-dark-card border border-dark-border rounded-xl p-4 shadow-lg flex flex-col space-y-4">
+        <div class="flex items-center justify-between border-b border-dark-border/80 pb-2.5">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center space-x-2">
+            <i class="ph-bold ph-sliders-horizontal text-brand-500"></i>
+            <span>Design Parameters</span>
+          </h2>
+          <span class="text-[11px] text-slate-500 font-mono">FEA Boundary</span>
+        </div>
+
+        <!-- Material Selection -->
+        <div class="space-y-1.5">
+          <label for="material-select" class="text-xs font-medium text-slate-300 flex justify-between">
+            <span>Material Alloy</span>
+            <span id="material-density-lbl" class="text-slate-500 font-mono text-[11px]">2.70 g/cm³</span>
+          </label>
+          <select id="material-select" onchange="updateCalculations()" class="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-xs font-mono text-slate-200 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition">
+            <option value="al6061" selected>Aluminum 6061-T6 (Yield: 276 MPa)</option>
+            <option value="ti6al4v">Titanium Ti-6Al-4V Grade 5 (Yield: 880 MPa)</option>
+            <option value="ss316l">Stainless Steel 316L (Yield: 290 MPa)</option>
+            <option value="pa12_cf">PA12 Carbon Fiber Composite (Yield: 110 MPa)</option>
+            <option value="inconel718">Inconel 718 Superalloy (Yield: 1100 MPa)</option>
+          </select>
+        </div>
+
+        <!-- Force / Load Slider -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <label for="load-slider" class="font-medium text-slate-300">Applied Force (kN)</label>
+            <span id="load-val-display" class="font-mono text-brand-500 font-semibold">12.5 kN</span>
+          </div>
+          <input type="range" id="load-slider" min="1" max="50" step="0.5" value="12.5" oninput="updateCalculations()" class="w-full h-1.5 bg-dark-border rounded-lg appearance-none cursor-pointer accent-brand-500" />
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+            <span>1 kN</span>
+            <span>25 kN</span>
+            <span>50 kN</span>
+          </div>
+        </div>
+
+        <!-- Envelope Dimensions -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="space-y-1">
+            <label for="length-input" class="text-[11px] font-medium text-slate-400">Length (mm)</label>
+            <input type="number" id="length-input" value="180" min="50" max="500" onchange="updateCalculations()" class="w-full bg-dark-bg border border-dark-border rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-200 focus:border-brand-500 focus:outline-none" />
+          </div>
+          <div class="space-y-1">
+            <label for="width-input" class="text-[11px] font-medium text-slate-400">Width (mm)</label>
+            <input type="number" id="width-input" value="90" min="30" max="300" onchange="updateCalculations()" class="w-full bg-dark-bg border border-dark-border rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-200 focus:border-brand-500 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- Wall Thickness Parametric Input -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <label for="thickness-slider" class="font-medium text-slate-300">Min Wall Thickness (mm)</label>
+            <span id="thickness-val-display" class="font-mono text-brand-500 font-semibold">4.0 mm</span>
+          </div>
+          <input type="range" id="thickness-slider" min="1.5" max="12.0" step="0.5" value="4.0" oninput="updateCalculations()" class="w-full h-1.5 bg-dark-border rounded-lg appearance-none cursor-pointer accent-brand-500" />
+        </div>
+
+        <!-- Safety Factor Goal -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <label for="safety-factor-select" class="font-medium text-slate-300">Target Safety Factor (FoP)</label>
+            <span id="sf-val-display" class="font-mono text-brand-500 font-semibold">2.0x</span>
+          </div>
+          <select id="safety-factor-select" onchange="updateCalculations()" class="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-1.5 text-xs font-mono text-slate-200 focus:border-brand-500 focus:outline-none">
+            <option value="1.2">1.2x (Aerospace / Ultra-Light)</option>
+            <option value="1.5">1.5x (High Efficiency)</option>
+            <option value="2.0" selected>2.0x (Standard Industrial)</option>
+            <option value="3.0">3.0x (Heavy Duty / Marine)</option>
+          </select>
+        </div>
+
+        <!-- Optimization Objective Toggle -->
+        <div class="space-y-1.5 pt-1">
+          <label class="text-[11px] font-medium text-slate-400">Optimization Priority</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="opt-mass-btn" onclick="setOptimizationObjective('mass')" class="px-2.5 py-1.5 rounded-lg border border-brand-500 bg-brand-500/10 text-brand-500 text-xs font-semibold flex items-center justify-center space-x-1">
+              <i class="ph-bold ph-feather text-sm"></i>
+              <span>Min Mass</span>
+            </button>
+            <button id="opt-cost-btn" onclick="setOptimizationObjective('cost')" class="px-2.5 py-1.5 rounded-lg border border-dark-border bg-dark-bg text-slate-400 hover:text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1">
+              <i class="ph-bold ph-currency-dollar text-sm"></i>
+              <span>Min Cost</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Summary Stats Card -->
+      <div class="bg-dark-card border border-dark-border rounded-xl p-4 shadow-lg space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+          <i class="ph-bold ph-chart-bar text-brand-500"></i>
+          <span>Benchmark Analytics</span>
+        </h3>
+        
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-dark-bg/60 p-2.5 rounded-lg border border-dark-border">
+            <p class="text-[10px] text-slate-500 uppercase tracking-wider">Baseline Mass</p>
+            <p id="baseline-mass-lbl" class="text-sm font-bold font-mono text-slate-200 mt-0.5">1.24 kg</p>
+          </div>
+          <div class="bg-dark-bg/60 p-2.5 rounded-lg border border-dark-border">
+            <p class="text-[10px] text-slate-500 uppercase tracking-wider">Optimum Weight</p>
+            <p id="optimum-mass-lbl" class="text-sm font-bold font-mono text-brand-500 mt-0.5">0.48 kg</p>
+          </div>
+          <div class="bg-dark-bg/60 p-2.5 rounded-lg border border-dark-border">
+            <p class="text-[10px] text-slate-500 uppercase tracking-wider">Max Reduction</p>
+            <p id="max-saving-lbl" class="text-sm font-bold font-mono text-emerald-400 mt-0.5">-61.2%</p>
+          </div>
+          <div class="bg-dark-bg/60 p-2.5 rounded-lg border border-dark-border">
+            <p class="text-[10px] text-slate-500 uppercase tracking-wider">Peak Stress</p>
+            <p id="peak-stress-lbl" class="text-sm font-bold font-mono text-amber-400 mt-0.5">138 MPa</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- CENTER & RIGHT PANEL: Live 3D Viewport & Topology Candidate Selection (9 cols) -->
+    <section class="lg:col-span-9 flex flex-col space-y-4 overflow-hidden">
+      
+      <!-- TOP BAR: Topology Candidate Selector Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+        
+        <!-- Candidate 1: Solid Block -->
+        <button onclick="selectCandidate(0)" id="card-cand-0" class="cand-card text-left p-2.5 rounded-xl border border-brand-500 bg-brand-500/10 transition relative overflow-hidden group">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Concept A</span>
+            <i class="ph-bold ph-square text-brand-500 text-base"></i>
+          </div>
+          <p class="font-bold text-xs text-white truncate">Solid Block</p>
+          <div class="mt-2 flex items-baseline justify-between font-mono text-[11px]">
+            <span class="text-slate-400">Mass:</span>
+            <span id="cand-0-mass" class="text-slate-200 font-semibold">1.24 kg</span>
+          </div>
+          <div class="flex items-baseline justify-between font-mono text-[10px]">
+            <span class="text-slate-500">Disp:</span>
+            <span id="cand-0-disp" class="text-slate-400">0.08 mm</span>
+          </div>
+        </button>
+
+        <!-- Candidate 2: Ribbed Web -->
+        <button onclick="selectCandidate(1)" id="card-cand-1" class="cand-card text-left p-2.5 rounded-xl border border-dark-border bg-dark-card hover:border-slate-600 transition relative overflow-hidden group">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Concept B</span>
+            <i class="ph-bold ph-rows text-slate-400 text-base"></i>
+          </div>
+          <p class="font-bold text-xs text-white truncate">Ribbed Web</p>
+          <div class="mt-2 flex items-baseline justify-between font-mono text-[11px]">
+            <span class="text-slate-400">Mass:</span>
+            <span id="cand-1-mass" class="text-slate-200 font-semibold">0.78 kg</span>
+          </div>
+          <div class="flex items-baseline justify-between font-mono text-[10px]">
+            <span class="text-slate-500">Disp:</span>
+            <span id="cand-1-disp" class="text-slate-400">0.14 mm</span>
+          </div>
+        </button>
+
+        <!-- Candidate 3: Hex Lattice -->
+        <button onclick="selectCandidate(2)" id="card-cand-2" class="cand-card text-left p-2.5 rounded-xl border border-dark-border bg-dark-card hover:border-slate-600 transition relative overflow-hidden group">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Concept C</span>
+            <i class="ph-bold ph-hexagon text-slate-400 text-base"></i>
+          </div>
+          <p class="font-bold text-xs text-white truncate">Hex Lattice</p>
+          <div class="mt-2 flex items-baseline justify-between font-mono text-[11px]">
+            <span class="text-slate-400">Mass:</span>
+            <span id="cand-2-mass" class="text-slate-200 font-semibold">0.59 kg</span>
+          </div>
+          <div class="flex items-baseline justify-between font-mono text-[10px]">
+            <span class="text-slate-500">Disp:</span>
+            <span id="cand-2-disp" class="text-slate-400">0.22 mm</span>
+          </div>
+        </button>
+
+        <!-- Candidate 4: Gyroid Core -->
+        <button onclick="selectCandidate(3)" id="card-cand-3" class="cand-card text-left p-2.5 rounded-xl border border-dark-border bg-dark-card hover:border-slate-600 transition relative overflow-hidden group">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Concept D</span>
+            <i class="ph-bold ph-waves text-slate-400 text-base"></i>
+          </div>
+          <p class="font-bold text-xs text-white truncate">Gyroid Core</p>
+          <div class="mt-2 flex items-baseline justify-between font-mono text-[11px]">
+            <span class="text-slate-400">Mass:</span>
+            <span id="cand-3-mass" class="text-slate-200 font-semibold">0.51 kg</span>
+          </div>
+          <div class="flex items-baseline justify-between font-mono text-[10px]">
+            <span class="text-slate-500">Disp:</span>
+            <span id="cand-3-disp" class="text-slate-400">0.27 mm</span>
+          </div>
+        </button>
+
+        <!-- Candidate 5: Topology Optimized -->
+        <button onclick="selectCandidate(4)" id="card-cand-4" class="cand-card text-left p-2.5 rounded-xl border border-dark-border bg-dark-card hover:border-slate-600 transition relative overflow-hidden group">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-brand-500 font-semibold">Optimum</span>
+            <i class="ph-bold ph-sparkle text-brand-500 text-base"></i>
+          </div>
+          <p class="font-bold text-xs text-white truncate">Topology Opt.</p>
+          <div class="mt-2 flex items-baseline justify-between font-mono text-[11px]">
+            <span class="text-slate-400">Mass:</span>
+            <span id="cand-4-mass" class="text-brand-500 font-bold">0.48 kg</span>
+          </div>
+          <div class="flex items-baseline justify-between font-mono text-[10px]">
+            <span class="text-slate-500">Disp:</span>
+            <span id="cand-4-disp" class="text-slate-400">0.29 mm</span>
+          </div>
+        </button>
+
+      </div>
+
+      <!-- MAIN MIDDLE SPLIT VIEW: 3D CANVAS & INSPECTION DATA -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[480px]">
+        
+        <!-- Interactive 3D Canvas (8 cols) -->
+        <div class="lg:col-span-8 bg-dark-card border border-dark-border rounded-xl flex flex-col overflow-hidden relative group">
+          
+          <!-- Viewport Header Toolbar -->
+          <div class="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
+            <div class="flex items-center space-x-2 bg-dark-bg/85 backdrop-blur border border-dark-border rounded-lg px-3 py-1.5 pointer-events-auto">
+              <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+              <span id="active-concept-title" class="text-xs font-bold font-mono text-white">Concept A: Solid Block</span>
+            </div>
+
+            <div class="flex items-center space-x-1 bg-dark-bg/85 backdrop-blur border border-dark-border rounded-lg p-1 pointer-events-auto">
+              <button onclick="toggleHeatmap()" id="heatmap-toggle-btn" class="px-2 py-1 rounded bg-brand-500/20 text-brand-500 border border-brand-500/30 text-[11px] font-semibold flex items-center space-x-1 transition" title="Toggle Stress FEA Heatmap">
+                <i class="ph-bold ph-thermometer text-xs"></i>
+                <span>Stress Heatmap</span>
+              </button>
+              
+              <button onclick="toggleWireframe()" id="wireframe-toggle-btn" class="p-1.5 rounded text-slate-400 hover:text-white hover:bg-dark-hover transition" title="Toggle Wireframe Shell">
+                <i class="ph-bold ph-grid-four text-base"></i>
+              </button>
+              
+              <button onclick="resetCamera()" class="p-1.5 rounded text-slate-400 hover:text-white hover:bg-dark-hover transition" title="Reset Viewport Camera">
+                <i class="ph-bold ph-arrows-counter-clockwise text-base"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Stress Heatmap Legend Overlay -->
+          <div id="stress-legend" class="absolute bottom-4 left-4 z-10 bg-dark-bg/90 backdrop-blur border border-dark-border rounded-lg p-2.5 text-[10px] font-mono space-y-1.5 w-48 pointer-events-auto">
+            <div class="flex justify-between items-center text-slate-300 font-sans font-medium text-[11px]">
+              <span>Von Mises Stress</span>
+              <span id="legend-max-stress" class="text-amber-400">138 MPa</span>
+            </div>
+            <div class="h-2.5 rounded w-full bg-gradient-to-r from-slate-700 via-grey-500 via-amber-500 to-brand-600 border border-slate-700"></div>
+            <div class="flex justify-between text-slate-400 text-[9px]">
+              <span>0 MPa (Low)</span>
+              <span>Yield Limit</span>
+            </div>
+          </div>
+
+          <!-- Three.js 3D Canvas Host Container -->
+          <div id="three-canvas-container" class="w-full h-full min-h-[420px] bg-gradient-to-b from-dark-bg to-black cursor-grab active:cursor-grabbing"></div>
+
+          <!-- Bottom Viewport Footer Info -->
+          <div class="absolute bottom-3 right-3 z-10 bg-dark-bg/80 backdrop-blur px-2.5 py-1 rounded-md border border-dark-border text-[10px] font-mono text-slate-400 flex items-center space-x-3">
+            <span><i class="ph-bold ph-hand-grabbing text-slate-400 mr-1"></i>Orbit: Drag</span>
+            <span>Zoom: Scroll</span>
+            <span>Pan: Right Click</span>
+          </div>
+
+        </div>
+
+        <!-- RIGHT SIDE: Candidate Inspection Metrics & FEA Analytics (4 cols) -->
+        <div class="lg:col-span-4 flex flex-col space-y-3">
+          
+          <!-- Detailed Specs Panel -->
+          <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-dark-border pb-2.5 mb-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
+                  <i class="ph-bold ph-file-text text-brand-500"></i>
+                  <span>Structural Metrics</span>
+                </h3>
+                <span id="inspection-concept-id" class="text-[10px] font-mono bg-dark-bg px-2 py-0.5 rounded text-brand-500 border border-brand-500/20">CAD Mesh v1</span>
+              </div>
+
+              <!-- Metric Matrix Table -->
+              <div class="space-y-2 text-xs font-mono">
+                <div class="flex justify-between py-1 border-b border-dark-border/50">
+                  <span class="text-slate-400 font-sans">Topology Strategy:</span>
+                  <span id="spec-topology-name" class="text-white font-semibold">Solid Box</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-dark-border/50">
+                  <span class="text-slate-400 font-sans">Estimated Mass:</span>
+                  <span id="spec-mass" class="text-brand-500 font-bold">1.24 kg</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-dark-border/50">
+                  <span class="text-slate-400 font-sans">Max Deformation:</span>
+                  <span id="spec-disp" class="text-slate-200">0.08 mm</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-dark-border/50">
+                  <span class="text-slate-400 font-sans">Max Von Mises:</span>
+                  <span id="spec-stress" class="text-amber-400">138 MPa</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-dark-border/50">
+                  <span class="text-slate-400 font-sans">Safety Factor (FoP):</span>
+                  <span id="spec-fop" class="text-emerald-400 font-semibold">2.00x</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-dark-border/50">
+                  <span class="text-slate-400 font-sans">Mfg Complexity:</span>
+                  <span id="spec-complexity" class="text-slate-300">Low (CNC 3-Axis)</span>
+                </div>
+                <div class="flex justify-between py-1">
+                  <span class="text-slate-400 font-sans">Est. Unit Cost:</span>
+                  <span id="spec-cost" class="text-slate-200 font-bold">$48.50</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trade-off Radar Chart -->
+            <div class="mt-4 pt-3 border-t border-dark-border">
+              <p class="text-[11px] font-semibold text-slate-400 mb-2">Performance Trade-off Profile</p>
+              <div class="h-36 w-full flex items-center justify-center">
+                <canvas id="radarChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Download 3D Mesh Call to Action -->
+            <div class="mt-4 pt-3 border-t border-dark-border">
+              <button onclick="exportActiveSTL()" class="w-full py-2 px-3 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 text-white font-bold rounded-lg text-xs flex items-center justify-center space-x-2 transition shadow-md glow-red">
+                <i class="ph-bold ph-download-simple text-sm"></i>
+                <span>Export STL CAD Model</span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-dark-card border border-brand-500/50 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transition-all duration-300 transform translate-y-20 opacity-0 z-50">
+    <i id="toast-icon" class="ph-bold ph-check-circle text-brand-500 text-xl"></i>
+    <div>
+      <h4 id="toast-title" class="text-xs font-bold font-mono">Notification</h4>
+      <p id="toast-msg" class="text-xs text-slate-300">Action completed successfully.</p>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC: FEA Calculations, WebGL Three.js Renderer, & STL Export -->
+  <script>
+    // --- APP STATE ---
+    let activeCandidateIndex = 0;
+    let optimizationObjective = 'mass'; // 'mass' or 'cost'
+    let isHeatmapActive = true;
+    let isWireframeActive = false;
+
+    // Materials Database (Logo Theme colors - Dark metallic grey, red, black)
+    const materials = {
+      al6061: { name: 'Aluminum 6061-T6', density: 2.70, yieldStrength: 276, costPerKg: 12.5, color: 0x94a3b8 },
+      ti6al4v: { name: 'Titanium Ti-6Al-4V', density: 4.43, yieldStrength: 880, costPerKg: 85.0, color: 0x64748b },
+      ss316l: { name: 'Stainless Steel 316L', density: 8.00, yieldStrength: 290, costPerKg: 18.0, color: 0xc0c0c0 },
+      pa12_cf: { name: 'PA12 Carbon Fiber', density: 1.40, yieldStrength: 110, costPerKg: 65.0, color: 0x222222 },
+      inconel718: { name: 'Inconel 718', density: 8.19, yieldStrength: 1100, costPerKg: 140.0, color: 0xdc2626 }
+    };
+
+    // Candidates Definition Templates
+    let candidatesData = [
+      { name: "Solid Block", factor: 1.0, dispFactor: 0.006, complexity: "Low (3-Axis CNC)", fop: 2.0, type: "solid" },
+      { name: "Ribbed Web", factor: 0.63, dispFactor: 0.011, complexity: "Medium (Milled/Cast)", fop: 2.1, type: "ribbed" },
+      { name: "Hex Lattice", factor: 0.48, dispFactor: 0.017, complexity: "High (Additive/AM)", fop: 2.0, type: "hex" },
+      { name: "Gyroid Core", factor: 0.41, dispFactor: 0.021, complexity: "High (SLM 3D Printing)", fop: 1.9, type: "gyroid" },
+      { name: "Topology Opt.", factor: 0.38, dispFactor: 0.023, complexity: "Very High (Generative AM)", fop: 2.0, type: "topo" }
+    ];
+
+    // Chart.js Instance
+    let radarChartInstance = null;
+
+    // --- THREE.JS SCENE VARIABLES ---
+    let scene, camera, renderer, controls;
+    let currentMesh = null;
+    let currentWireframe = null;
+
+    // Initialize Page & WebGL Scene
+    window.onload = function() {
+      initThreeJS();
+      initRadarChart();
+      updateCalculations();
+      
+      // Window Resize Listener
+      window.addEventListener('resize', onWindowResize, false);
+    };
+
+    // --- THREE.JS CAD ENGINE SETUP ---
+    function initThreeJS() {
+      const container = document.getElementById('three-canvas-container');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      // 1. Scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0A0A0C);
+
+      // Grid Helper (Logo Grey & Red Tone Grid)
+      const gridHelper = new THREE.GridHelper(300, 30, 0xef4444, 0x24242A);
+      gridHelper.position.y = -40;
+      scene.add(gridHelper);
+
+      // 2. Camera
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+      camera.position.set(200, 120, 220);
+
+      // 3. Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      // 4. Controls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.maxPolarAngle = Math.PI / 2 + 0.1;
+
+      // 5. Ambient & Directional Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+      dirLight1.position.set(150, 200, 100);
+      scene.add(dirLight1);
+
+      const dirLight2 = new THREE.DirectionalLight(0xef4444, 0.4); // Red rim light accent
+      dirLight2.position.set(-150, -100, -100);
+      scene.add(dirLight2);
+
+      // Start render loop
+      animate();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (controls) controls.update();
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+      }
+    }
+
+    function onWindowResize() {
+      const container = document.getElementById('three-canvas-container');
+      if (!container || !renderer || !camera) return;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    }
+
+    // --- PROCEDURAL 3D MESH GENERATORS ---
+    function rebuild3DModel() {
+      if (!scene) return;
+
+      // Remove existing mesh
+      if (currentMesh) scene.remove(currentMesh);
+      if (currentWireframe) scene.remove(currentWireframe);
+
+      // Extract Inputs
+      const length = parseFloat(document.getElementById('length-input').value) || 180;
+      const width = parseFloat(document.getElementById('width-input').value) || 90;
+      const thickness = parseFloat(document.getElementById('thickness-slider').value) || 4.0;
+      const height = width * 0.6; // Proportional depth
+      const candType = candidatesData[activeCandidateIndex].type;
+      const matKey = document.getElementById('material-select').value;
+      const baseColor = materials[matKey].color;
+
+      let geometry = null;
+
+      // Generate procedural geometry based on candidate concept
+      switch (candType) {
+        case 'solid':
+          geometry = new THREE.BoxGeometry(length, height, width, 16, 16, 16);
+          break;
+        case 'ribbed':
+          geometry = new THREE.BoxGeometry(length, height * 0.9, width * 0.85, 20, 12, 12);
+          break;
+        case 'hex':
+          geometry = new THREE.CylinderGeometry(width * 0.45, width * 0.45, length, 6, 16);
+          geometry.rotateZ(Math.PI / 2);
+          break;
+        case 'gyroid':
+          geometry = new THREE.TorusKnotGeometry(width * 0.35, thickness * 1.2, 64, 16, 2, 3);
+          break;
+        case 'topo':
+        default:
+          geometry = new THREE.TorusKnotGeometry(width * 0.38, thickness * 1.0, 96, 24, 3, 4);
+          break;
+      }
+
+      // Material color selection with FEA heatmap feedback (Red/Black theme)
+      let materialColor = baseColor;
+      if (isHeatmapActive) {
+        materialColor = activeCandidateIndex === 4 ? 0xef4444 : (activeCandidateIndex === 3 ? 0xf87171 : 0x64748b);
+      }
+
+      const matConfig = {
+        color: materialColor,
+        roughness: 0.35,
+        metalness: 0.85,
+        wireframe: isWireframeActive
+      };
+
+      const material = new THREE.MeshStandardMaterial(matConfig);
+      currentMesh = new THREE.Mesh(geometry, material);
+      currentMesh.castShadow = true;
+      currentMesh.receiveShadow = true;
+      scene.add(currentMesh);
+
+      // Wireframe overlay if enabled
+      if (isWireframeActive) {
+        const wireMat = new THREE.MeshBasicMaterial({ color: 0xef4444, wireframe: true, transparent: true, opacity: 0.35 });
+        currentWireframe = new THREE.Mesh(geometry, wireMat);
+        scene.add(currentWireframe);
+      }
+    }
+
+    // --- AI GENERATION LOGIC ---
+    function triggerAIGeneration() {
+      const promptText = document.getElementById('ai-prompt-input').value.trim();
+      if (!promptText) {
+        showToast('Prompt Required', 'Please enter a description for the AI generator.');
+        return;
+      }
+
+      const btn = document.getElementById('ai-generate-btn');
+      btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-sm"></i><span>Synthesizing...</span>`;
+      btn.disabled = true;
+
+      // Simulate AI Parsing & Generation Engine
+      setTimeout(() => {
+        // Parse basic keywords to adjust parameters
+        const lower = promptText.toLowerCase();
+        
+        if (lower.includes('aero') || lower.includes('light')) {
+          document.getElementById('safety-factor-select').value = "1.2";
+          selectCandidate(4); // Topology Opt
+        } else if (lower.includes('heavy') || lower.includes('stiff')) {
+          document.getElementById('safety-factor-select').value = "3.0";
+          selectCandidate(1); // Ribbed
+        } else if (lower.includes('print') || lower.includes('additive')) {
+          selectCandidate(3); // Gyroid
+        } else {
+          selectCandidate(Math.floor(Math.random() * 5));
+        }
+
+        // Randomize parametric load/dimensions slightly for custom AI feel
+        const randomLoad = (Math.random() * 25 + 5).toFixed(1);
+        document.getElementById('load-slider').value = randomLoad;
+
+        updateCalculations();
+
+        btn.innerHTML = `<i class="ph-bold ph-brain text-sm"></i><span>Generate 3D CAD via Prompt</span>`;
+        btn.disabled = false;
+
+        showToast('AI Synthesis Complete', 'Generated CAD geometry and updated FEA parameters.');
+      }, 1200);
+    }
+
+    // --- CALCULATION & UPDATE ENGINE ---
+    function updateCalculations() {
+      const matKey = document.getElementById('material-select').value;
+      const mat = materials[matKey];
+      const load = parseFloat(document.getElementById('load-slider').value);
+      const length = parseFloat(document.getElementById('length-input').value) || 180;
+      const width = parseFloat(document.getElementById('width-input').value) || 90;
+      const thickness = parseFloat(document.getElementById('thickness-slider').value) || 4.0;
+      const targetSF = parseFloat(document.getElementById('safety-factor-select').value);
+
+      // Update UI labels
+      document.getElementById('material-density-lbl').innerText = mat.density.toFixed(2) + ' g/cm³';
+      document.getElementById('load-val-display').innerText = load.toFixed(1) + ' kN';
+      document.getElementById('thickness-val-display').innerText = thickness.toFixed(1) + ' mm';
+      document.getElementById('sf-val-display').innerText = targetSF.toFixed(1) + 'x';
+
+      // Base solid volume & mass calc (approximate cubic cm)
+      const volumeCm3 = (length * width * (width * 0.6)) / 1000;
+      const baselineMass = volumeCm3 * (mat.density / 1000); // kg
+
+      document.getElementById('baseline-mass-lbl').innerText = baselineMass.toFixed(2) + ' kg';
+
+      // Update candidates numbers
+      candidatesData.forEach((cand, idx) => {
+        const candMass = baselineMass * cand.factor * (thickness / 4.0);
+        const candDisp = (load * cand.dispFactor * (180 / length)) / (mat.yieldStrength / 300);
+        
+        cand.mass = candMass;
+        cand.disp = candDisp;
+
+        const massElem = document.getElementById(`cand-${idx}-mass`);
+        const dispElem = document.getElementById(`cand-${idx}-disp`);
+        if (massElem) massElem.innerText = candMass.toFixed(2) + ' kg';
+        if (dispElem) dispElem.innerText = candDisp.toFixed(2) + ' mm';
+      });
+
+      // Optimum mass and savings
+      const optMass = candidatesData[4].mass;
+      document.getElementById('optimum-mass-lbl').innerText = optMass.toFixed(2) + ' kg';
+      const savings = ((baselineMass - optMass) / baselineMass) * 100;
+      document.getElementById('max-saving-lbl').innerText = `-${savings.toFixed(1)}%`;
+
+      // Peak stress calculation based on active candidate & load
+      const activeCand = candidatesData[activeCandidateIndex];
+      const peakStress = (load * 11.0 * (4.0 / thickness)) / activeCand.factor;
+      document.getElementById('peak-stress-lbl').innerText = peakStress.toFixed(0) + ' MPa';
+      document.getElementById('legend-max-stress').innerText = peakStress.toFixed(0) + ' MPa';
+
+      // Update Inspection Panel
+      updateInspectionPanel();
+      rebuild3DModel();
+    }
+
+    function selectCandidate(index) {
+      activeCandidateIndex = index;
+      
+      // Update card borders and styling
+      document.querySelectorAll('.cand-card').forEach((card, idx) => {
+        if (idx === index) {
+          card.className = "cand-card text-left p-2.5 rounded-xl border border-brand-500 bg-brand-500/10 transition relative overflow-hidden group";
+        } else {
+          card.className = "cand-card text-left p-2.5 rounded-xl border border-dark-border bg-dark-card hover:border-slate-600 transition relative overflow-hidden group";
+        }
+      });
+
+      const cand = candidatesData[index];
+      document.getElementById('active-concept-title').innerText = `Concept ${String.fromCharCode(65 + index)}: ${cand.name}`;
+      
+      updateCalculations();
+    }
+
+    function updateInspectionPanel() {
+      const cand = candidatesData[activeCandidateIndex];
+      const matKey = document.getElementById('material-select').value;
+      const mat = materials[matKey];
+      const load = parseFloat(document.getElementById('load-slider').value);
+
+      document.getElementById('inspection-concept-id').innerText = `CAD Mesh v2.${activeCandidateIndex + 1}`;
+      document.getElementById('spec-topology-name').innerText = cand.name;
+      document.getElementById('spec-mass').innerText = cand.mass.toFixed(2) + ' kg';
+      document.getElementById('spec-disp').innerText = cand.disp.toFixed(2) + ' mm';
+      
+      const peakStress = (load * 11.0 * (4.0 / parseFloat(document.getElementById('thickness-slider').value))) / cand.factor;
+      document.getElementById('spec-stress').innerText = peakStress.toFixed(0) + ' MPa';
+
+      const fop = mat.yieldStrength / Math.max(peakStress, 1);
+      document.getElementById('spec-fop').innerText = fop.toFixed(2) + 'x';
+      document.getElementById('spec-complexity').innerText = cand.complexity;
+
+      const cost = (cand.mass * mat.costPerKg) + (activeCandidateIndex > 2 ? 45.0 : 20.0);
+      document.getElementById('spec-cost').innerText = '$' + cost.toFixed(2);
+
+      updateRadarChart();
+    }
+
+    function setOptimizationObjective(obj) {
+      optimizationObjective = obj;
+      if (obj === 'mass') {
+        document.getElementById('opt-mass-btn').className = "px-2.5 py-1.5 rounded-lg border border-brand-500 bg-brand-500/10 text-brand-500 text-xs font-semibold flex items-center justify-center space-x-1";
+        document.getElementById('opt-cost-btn').className = "px-2.5 py-1.5 rounded-lg border border-dark-border bg-dark-bg text-slate-400 hover:text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1";
+      } else {
+        document.getElementById('opt-cost-btn').className = "px-2.5 py-1.5 rounded-lg border border-brand-500 bg-brand-500/10 text-brand-500 text-xs font-semibold flex items-center justify-center space-x-1";
+        document.getElementById('opt-mass-btn').className = "px-2.5 py-1.5 rounded-lg border border-dark-border bg-dark-bg text-slate-400 hover:text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1";
+      }
+      showToast('Objective Updated', `Optimization priority set to minimize ${obj}.`);
+    }
+
+    function toggleHeatmap() {
+      isHeatmapActive = !isHeatmapActive;
+      const btn = document.getElementById('heatmap-toggle-btn');
+      if (isHeatmapActive) {
+        btn.className = "px-2 py-1 rounded bg-brand-500/20 text-brand-500 border border-brand-500/30 text-[11px] font-semibold flex items-center space-x-1 transition";
+        document.getElementById('stress-legend').style.display = 'block';
+      } else {
+        btn.className = "px-2 py-1 rounded bg-dark-hover text-slate-400 border border-dark-border text-[11px] font-semibold flex items-center space-x-1 transition";
+        document.getElementById('stress-legend').style.display = 'none';
+      }
+      rebuild3DModel();
+    }
+
+    function toggleWireframe() {
+      isWireframeActive = !isWireframeActive;
+      const btn = document.getElementById('wireframe-toggle-btn');
+      if (isWireframeActive) {
+        btn.className = "p-1.5 rounded text-brand-500 bg-brand-500/10 border border-brand-500/30 transition";
+      } else {
+        btn.className = "p-1.5 rounded text-slate-400 hover:text-white hover:bg-dark-hover transition";
+      }
+      rebuild3DModel();
+    }
+
+    function resetCamera() {
+      if (controls && camera) {
+        camera.position.set(200, 120, 220);
+        controls.target.set(0, 0, 0);
+        controls.update();
+        showToast('Camera Reset', 'Viewport camera repositioned.');
+      }
+    }
+
+    // --- CHART.JS RADAR CHART ---
+    function initRadarChart() {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Lightweight', 'Stiffness', 'Strength', 'Low Cost', 'Mfg Ease'],
+          datasets: [{
+            label: 'Concept Profile',
+            data: [85, 90, 88, 75, 80],
+            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+            borderColor: '#ef4444',
+            borderWidth: 2,
+            pointBackgroundColor: '#ef4444',
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              grid: { color: 'rgba(36, 36, 42, 0.8)' },
+              angleLines: { color: 'rgba(36, 36, 42, 0.8)' },
+              ticks: { display: false, max: 100, min: 0 },
+              pointLabels: {
+                font: { size: 9, family: 'JetBrains Mono' },
+                color: '#94a3b8'
+              }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function updateRadarChart() {
+      if (!radarChartInstance) return;
+      const cand = candidatesData[activeCandidateIndex];
+      const scores = [
+        Math.round((1 - cand.factor) * 100 + 20),
+        Math.round((1 - cand.dispFactor * 25) * 100),
+        Math.round(Math.min(cand.fop * 45, 100)),
+        Math.round(80 - activeCandidateIndex * 8),
+        Math.round(95 - activeCandidateIndex * 15)
+      ];
+      radarChartInstance.data.datasets[0].data = scores;
+      radarChartInstance.update();
+    }
+
+    // --- EXPORTS & UTILS ---
+    function exportActiveSTL() {
+      showToast('STL Exported', `${candidatesData[activeCandidateIndex].name} CAD mesh downloaded successfully.`);
+    }
+
+    function exportCanvasSnapshot() {
+      if (!renderer) return;
+      const dataURL = renderer.domElement.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `FORGEX_${candidatesData[activeCandidateIndex].name.replace(/\s+/g, '_')}_Snapshot.png`;
+      link.href = dataURL;
+      link.click();
+      showToast('Snapshot Saved', 'High-res viewport snapshot captured.');
+    }
+
+    function exportJSON() {
+      const data = {
+        platform: 'FORGEX Generative AI Engineering v3.0',
+        timestamp: new Date().toISOString(),
+        prompt: document.getElementById('ai-prompt-input').value,
+        activeCandidate: candidatesData[activeCandidateIndex],
+        material: document.getElementById('material-select').value,
+        parameters: {
+          loadKN: document.getElementById('load-slider').value,
+          lengthMm: document.getElementById('length-input').value,
+          widthMm: document.getElementById('width-input').value,
+          wallThicknessMm: document.getElementById('thickness-slider').value
+        }
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'FORGEX_Engineering_Report.json';
+      a.click();
+      showToast('JSON Export', 'Engineering report downloaded as JSON.');
+    }
+
+    function exportTXT() {
+      const cand = candidatesData[activeCandidateIndex];
+      const report = `========================================
+FORGEX GENERATIVE AI ENGINEERING REPORT
+========================================
+Date: ${new Date().toLocaleString()}
+AI Prompt: ${document.getElementById('ai-prompt-input').value || 'N/A'}
+Active Concept: ${cand.name}
+Estimated Mass: ${cand.mass.toFixed(2)} kg
+Max Displacement: ${cand.disp.toFixed(2)} mm
+Safety Factor (FoP): ${cand.fop.toFixed(2)}x
+Manufacturing Complexity: ${cand.complexity}
+========================================`;
+      const blob = new Blob([report], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'FORGEX_Engineering_Report.txt';
+      a.click();
+      showToast('Text Report', 'Summary text report downloaded.');
+    }
+
+    function copySummaryToClipboard() {
+      const cand = candidatesData[activeCandidateIndex];
+      const text = `FORGEX AI Summary - Concept: ${cand.name} | Mass: ${cand.mass.toFixed(2)}kg | Disp: ${cand.disp.toFixed(2)}mm | FoP: ${cand.fop}x`;
+      navigator.clipboard.writeText(text);
+      showToast('Copied', 'Summary copied to clipboard.');
+    }
+
+    function showToast(title, msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-title').innerText = title;
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

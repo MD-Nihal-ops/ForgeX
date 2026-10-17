@@ -1,0 +1,1 @@
+"""Parametric gripper solids."""

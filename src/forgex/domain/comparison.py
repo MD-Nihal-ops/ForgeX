@@ -1,0 +1,1 @@
+"""Flattened comparison-row models."""

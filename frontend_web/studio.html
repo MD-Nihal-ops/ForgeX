@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ForgeX</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ctext%20y='14'%20font-size='14'%3E%F0%9F%94%A7%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0B0C;--side:#000;--card:#161617;--card2:#232325;--ln:#2e2e31;--mint:#E5252F;--mint2:#8f1a20;--tx:#f3f3f3;--mu:#9a9a9f;--ok:#34d399;--warn:#f5b942;--bad:#ff9a8f;--est:#7cc4f5;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+button:focus-visible,input:focus-visible{outline:2px solid var(--est);outline-offset:2px}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.app{display:flex;height:100vh;height:100dvh}
+aside{width:280px;background:var(--side);border-right:1px solid var(--ln);display:flex;flex-direction:column;flex-shrink:0;transition:margin .2s}
+.app.closed aside{margin-left:-280px}
+.sh{display:flex;align-items:center;gap:12px;padding:16px 16px 10px;color:var(--mu)}
+.logo{font-weight:600;font-size:23px;color:var(--tx)}.logo i{font-style:normal;color:var(--mint)}
+.nav{padding:6px 10px;display:flex;flex-direction:column;gap:2px}
+.nv{display:flex;align-items:center;gap:12px;padding:9px 8px;border-radius:10px;color:var(--tx);text-align:left;width:100%}
+.nv:hover{background:var(--card)}
+.nv .ic{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--card2)}
+.sec{display:flex;justify-content:space-between;align-items:center;padding:20px 18px 8px;color:var(--mu);font-size:14px}
+.hist{flex:1;overflow:auto;padding:0 10px}
+.hi{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:9px 10px;border-radius:10px;white-space:nowrap;overflow:hidden}
+.hi span{overflow:hidden;text-overflow:ellipsis}.hi:before{content:"";width:6px;height:6px;border:1px solid var(--mu);border-radius:50%;flex-shrink:0}
+.hi:hover{background:var(--card)}.hi.on{background:var(--card2)}
+.user{display:flex;align-items:center;gap:10px;padding:14px;border-top:1px solid var(--ln);color:var(--mu)}
+.user b{color:var(--tx);font-weight:500;flex:1;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{width:32px;height:32px;border-radius:50%;background:var(--card2);color:var(--mint);display:grid;place-items:center;font-size:12px;font-weight:600}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.top{display:flex;align-items:center;gap:8px;padding:14px 18px}
+.top .t{display:flex;gap:6px;align-items:center;font-weight:500;font-size:16px;padding:6px 8px;border-radius:8px}.top .t:hover{background:var(--card)}
+.sp{flex:1}
+.share{background:var(--card);border-radius:8px;padding:7px 14px;font-weight:500}.share:hover{background:var(--card2)}
+.ib{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;color:var(--mu)}.ib:hover{background:var(--card)}
+.feed{flex:1;overflow:auto;padding:10px 20px 20px}
+.col{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.u{align-self:flex-end;background:var(--card);padding:10px 16px;border-radius:18px;max-width:85%}
+.a{font-family:"Source Serif 4",Georgia,serif;font-size:17px;line-height:1.6;display:flex;flex-direction:column;gap:14px}
+.a ul{margin:0;padding-left:22px}.a li{margin:6px 0}
+.sans{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15px}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.st{display:flex;align-items:center;gap:6px;color:var(--mu);font-size:13px;padding:3px 10px 3px 4px;border-radius:99px}
+.st s{width:20px;height:20px;border-radius:50%;border:1px solid var(--ln);display:grid;place-items:center;text-decoration:none;font-size:11px}
+.st.done{color:var(--tx)}.st.done s{background:var(--mint);border-color:var(--mint);color:#fff}
+.st.now{color:var(--tx);background:var(--card2)}.st.now s{border-color:var(--mint);color:var(--mint)}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:16px}
+.card svg.w{width:100%;height:190px;display:block;background:var(--side);border-radius:10px}
+.nums{display:flex;gap:28px;margin-top:12px;flex-wrap:wrap}
+.nums span{display:block;color:var(--mu);font-size:13px}.nums b{font-size:22px;font-weight:500}
+.rows{margin-top:14px;border-top:1px solid var(--ln)}
+.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--ln);font-size:14.5px}
+.row em{font-style:normal;font-weight:600;font-size:13px}
+.READY{color:var(--ok)}.REVIEW{color:var(--warn)}.BLOCKED{color:var(--bad)}.ESTIMATED{color:var(--est)}
+.acts{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn{border:1px solid var(--mint);color:var(--mint);border-radius:8px;padding:7px 14px}.btn:hover{background:var(--mint);color:#fff}
+.chip{border:1px dashed var(--warn);color:var(--warn);border-radius:99px;padding:5px 14px;font-size:14px;align-self:flex-start}.chip:hover{background:var(--warn);color:#07131F}
+.chip.d{border:1px solid var(--ln);color:var(--mu);pointer-events:none}
+.tools{display:flex;gap:2px;color:var(--mu)}.tools button{width:32px;height:32px;display:grid;place-items:center;border-radius:8px}.tools button:hover{background:var(--card);color:var(--tx)}
+.spark{width:34px;height:34px;color:var(--mint);animation:spin 3s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.spark{animation:none}}
+.empty{text-align:center;margin-top:14vh}.empty h1{font:400 34px "Source Serif 4",Georgia,serif;margin:0 0 8px}.empty p{color:var(--mu);margin:0}
+.foot{padding:0 20px calc(10px + env(safe-area-inset-bottom,0px))}
+form{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--ln);border-radius:18px;padding:12px 14px;color:var(--mu)}
+form:focus-within{border-color:var(--mint2)}
+input{flex:1;background:none;border:0;color:var(--tx);font:inherit;outline:none;min-width:0}
+.go{color:var(--tx)}
+.fine{max-width:760px;margin:8px auto 0;display:flex;justify-content:space-between;gap:12px;color:var(--mu);font-size:13px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--ln);padding:8px 14px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+html.embedded,html.embedded body{width:100%;height:100%;overflow:hidden}
+html.embedded .app{width:100%;height:100%;min-height:0}
+html.embedded aside,html.embedded .top{display:none}
+html.embedded .main{width:100%;height:100%;min-height:0}
+html.embedded .feed{min-height:0}
+@media(max-width:800px){aside{position:fixed;inset:0 auto 0 0;z-index:5;margin-left:-280px}.app.open aside{margin-left:0;box-shadow:0 0 0 100vmax rgba(0,0,0,.55)}.app.closed aside{margin-left:-280px}.st span{display:none}.st{padding:3px}}
+</style><script>if(new URLSearchParams(location.search).get("embedded")==="1")document.documentElement.classList.add("embedded");</script></head>
+<body>
+<div class="app" id="app">
+<aside>
+ <div class="sh"><button class="ib" id="close" aria-label="Close sidebar"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button><span class="logo">Forge<i>X</i></span></div>
+ <div class="nav">
+  <button class="nv" id="new"><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>New</button>
+  <button class="nv" data-n="Projects"><svg class="i" viewBox="0 0 24 24" style="margin:0 5px"><path d="M4 8h16M6 4h12M5 8l1 12h12l1-12"/></svg>Projects</button>
+  <button class="nv" data-n="Reports"><svg class="i" viewBox="0 0 24 24" style="margin:0 5px"><path d="M7 3h8l4 4v14H7zM15 3v4h4"/></svg>Reports</button>
+  <button class="nv" data-n="Catalog"><svg class="i" viewBox="0 0 24 24" style="margin:0 5px"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg>Catalog</button>
+  <button class="nv" data-n="Settings"><svg class="i" viewBox="0 0 24 24" style="margin:0 5px"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>Settings</button>
+ </div>
+ <div class="sec">Designs and checks</div>
+ <div class="hist" id="hist"></div>
+ <div class="user"><span class="av">YA</span><b>Your workspace · Free</b><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+</aside>
+<div class="main">
+ <div class="top"><button class="ib" id="open" aria-label="Toggle sidebar"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
+  <span class="t"><span id="title">New design</span><svg class="i" viewBox="0 0 24 24" style="width:15px"><path d="M6 9l6 6 6-6"/></svg></span><span class="sp"></span>
+  <button class="share" data-n="Share link copied">Share</button></div>
+ <div class="feed" id="feed"><div class="col" id="col"></div></div>
+ <div class="foot"><form id="f"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><input id="q" placeholder="Describe what you want to design" aria-label="Describe your design"><svg class="i" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg><button class="go" aria-label="Send"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
+  <div class="fine"><span>ForgeX gives reference concepts only. Not certified or production-ready.</span><span>Physics engine v1 · Deterministic</span></div></div>
+</div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const D={
+gripper:{ti:"Gripper for 0.5 kg payload",p:"Design a gripper for a 0.5 kg payload",t:"I screened a two-jaw parallel gripper. It holds 0.5 kg with a healthy margin; I still need the jaw length to recheck bending.",set:"Set jaw length: 80 mm",
+ n:[["Grip force","24.5 N"],["Safety factor","2.4"],["Est. cost","$7.20"]],r:[["Holds 0.5 kg payload","READY"],["Jaw bending below yield","READY"],["Motor selection","ESTIMATED"],["Fatigue over repeated cycles","REVIEW"]]},
+house:{ti:"80 m² gabled house",p:"Plan an 80 m² house with a gabled roof",t:"I laid out a single-storey plan with a gabled roof. Structure checks pass, but the foundation is blocked until the soil bearing capacity is confirmed.",set:"Set soil bearing: 150 kPa",
+ n:[["Floor area","80 m²"],["Safety factor","1.9"],["Est. cost","$96,000"]],r:[["Floor area is at least 80 m²","READY"],["Walls handle roof load","READY"],["Roof snow load","ESTIMATED"],["Foundation bearing","BLOCKED"]]},
+encl:{ti:"Enclosure for 60×40 mm PCB",p:"Make an enclosure for a 60×40 mm PCB",t:"Here is a snap-lid enclosure sized for your board. Walls are strong enough; the battery size would firm up the internal volume.",set:"Set battery: 18650",
+ n:[["Inner volume","62 cm³"],["Safety factor","3.1"],["Print time","1 h 55"]],r:[["Fits 60×40 mm PCB","READY"],["Walls handle load","READY"],["Battery fits","ESTIMATED"],["Dust and splash rating","REVIEW"]]}};
+const STEPS=["Describe","Clarify","Screen","Export"];
+function box(b,x,y,z,w,d,h){const P=[[x,y,z],[x+w,y,z],[x+w,y+d,z],[x,y+d,z],[x,y,z+h],[x+w,y,z+h],[x+w,y+d,z+h],[x,y+d,z+h]];[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]].forEach(e=>b.push([P[e[0]],P[e[1]]]))}
+const M={gripper(b){box(b,-60,-30,-8,120,60,16);box(b,-52,-30,8,14,60,70);box(b,38,-30,8,14,60,70)},
+house(b){box(b,-100,-70,0,200,140,70);[-70,70].forEach(y=>b.push([[-100,y,70],[-100,0,110]],[[100,y,70],[100,0,110]]));b.push([[-100,0,110],[100,0,110]])},
+encl(b){box(b,-85,-55,0,170,110,70);box(b,-85,-55,76,170,110,14)}};
+function svg(k){const b=[];M[k](b);const c=Math.cos(.6),s=Math.sin(.6),pr=([x,y,z])=>{const X=x*c-y*s,Y=x*s+y*c;return[(X-Y)*.866,(X+Y)*.5-z]};
+ const pts=b.flat().map(pr),xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),x0=Math.min(...xs),y0=Math.min(...ys),w=Math.max(...xs)-x0,h=Math.max(...ys)-y0;
+ return`<svg class="w" viewBox="${x0-30} ${y0-20} ${w+60} ${h+40}" role="img" aria-label="Wireframe of the concept"><g stroke="#FF3B47" stroke-width="1.4" fill="none" stroke-linecap="round">${b.map(([p,q])=>`<path d="M${pr(p)}L${pr(q)}"/>`).join("")}</g></svg>`}
+const tool=p=>`<button aria-label="action"><svg class="i" viewBox="0 0 24 24">${p}</svg></button>`;
+let S=[{k:"house",step:3,set:0,wait:0},{k:"encl",step:4,set:1,wait:0},{k:"gripper",step:3,set:0,wait:0}];
+let cur=null;const $=id=>document.getElementById(id);
+function render(){const s=cur===null?null:S[cur];
+ $("hist").innerHTML=S.map((x,i)=>`<button class="hi ${i===cur?"on":""}" data-i="${i}"><span>${D[x.k].ti}</span></button>`).join("");
+ $("title").textContent=s?D[s.k].ti:"New design";
+ if(!s){$("col").innerHTML=`<div class="empty"><h1>What are you designing?</h1><p>Describe it in plain words. Every result comes with its evidence.</p></div>
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">${Object.keys(D).map(k=>`<button class="btn" data-k="${k}">${D[k].ti}</button>`).join("")}</div>`;return}
+ const d=D[s.k],st=s.step;
+ let h=`<div class="u">${d.p}</div>`;
+ if(s.wait)h+=`<svg class="spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-label="Working"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4"/></svg>`;
+ else h+=`<div class="a"><div>${d.t}</div>
+ <div class="card sans"><div class="steps">${STEPS.map((n,i)=>`<div class="st ${i+1<st?"done":i+1===st?"now":""}"><s>${i+1<st?"✓":i+1}</s><span>${n}</span></div>`).join("")}</div>
+ ${svg(s.k)}<div class="nums">${d.n.map(n=>`<div><span>${n[0]}</span><b>${n[1]}</b></div>`).join("")}</div>
+ <div class="rows">${d.r.map(r=>`<div class="row"><span>${r[0]}</span><em class="${r[1]}">${r[1][0]+r[1].slice(1).toLowerCase()}</em></div>`).join("")}</div>
+ <div class="acts"><button class="btn" data-x="Report (.md)">Download report</button><button class="btn" data-x="STL model">Download STL</button></div></div>
+ <button class="chip sans ${s.set?"d":""}" data-set="1">${s.set?"✓ "+d.set:d.set}</button>
+ <div class="tools">${tool('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 012-2h9"/>')}${tool('<path d="M7 11v9H4v-9zM7 11l4-8c2 0 3 1 2.5 3L13 10h6a2 2 0 012 2l-1 6a2 2 0 01-2 2H7"/>')}${tool('<path d="M17 13V4h3v9zM17 13l-4 8c-2 0-3-1-2.5-3L11 14H5a2 2 0 01-2-2l1-6a2 2 0 012-2h11"/>')}${tool('<path d="M20 11a8 8 0 10-2 6M20 4v7h-7"/>')}</div></div>`;
+ $("col").innerHTML=h;$("feed").scrollTop=1e5}
+function start(k){S.unshift({k,step:2,set:0,wait:1});cur=0;render();setTimeout(()=>{S[0].wait=0;S[0].step=3;if(cur===0)render()},900)}
+$("col").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.k)start(b.dataset.k);
+ else if(b.dataset.set){S[cur].set=1;render();toast("Checks updated")}
+ else if(b.dataset.x){S[cur].step=4;render();toast(b.dataset.x+" ready")}};
+$("hist").onclick=e=>{const b=e.target.closest(".hi");if(b){cur=+b.dataset.i;render();$("app").classList.remove("open")}};
+$("new").onclick=()=>{cur=null;render();$("app").classList.remove("open");$("q").focus()};
+document.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>toast(b.dataset.n.length>9?b.dataset.n:b.dataset.n+" opens here"));
+$("close").onclick=()=>{$("app").classList.add("closed");$("app").classList.remove("open")};
+$("open").onclick=()=>{const a=$("app");if(innerWidth<=800){a.classList.toggle("open");a.classList.remove("closed")}else a.classList.toggle("closed")};
+$("f").onsubmit=e=>{e.preventDefault();const l=$("q").value.toLowerCase();if(!l.trim())return;$("q").value="";start(/house|home|roof/.test(l)?"house":/enclos|box|case|pcb/.test(l)?"encl":"gripper")};
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1600)}
+render();
+console.log('ForgeX script loaded, DOM ready:', document.readyState, 'body children:', document.body.children.length);
+function showHouseModel(tier) {
+  window.parent.postMessage({ type: 'SHOW_HOUSE_MODEL', tier: tier }, '*');
+}
+(() => {
+  const tiers = {
+    economy: {
+      name: "Economy",
+      price: "$50,000",
+      specs: "12 × 10 m footprint · 120 m² · no veranda",
+      tag: "A_50k"
+    },
+    comfort: {
+      name: "Comfort",
+      price: "$85,000",
+      specs: "14 × 10 m footprint · 140 m² · 2 m veranda",
+      tag: "B_85k"
+    },
+    premium: {
+      name: "Premium",
+      price: "$140,000",
+      specs: "15 × 12 m footprint · 180 m² · study + veranda",
+      tag: "C_140k"
+    }
+  };
+  const form = document.getElementById("f");
+  const input = document.getElementById("q");
+  const col = document.getElementById("col");
+
+  function detectedTier(prompt) {
+    const text = prompt.toLowerCase();
+    if (/\bpremium\b|\bluxury\b|\b140k\b|\$140,000\b/.test(text)) return "premium";
+    if (/\bcomfort\b|\bmid[- ]?range\b|\b85k\b|\$85,000\b/.test(text)) return "comfort";
+    if (/\beconomy\b|\bbudget\b|\bcheap\b|\b50k\b|\$50,000\b/.test(text)) return "economy";
+    return null;
+  }
+
+  function isHousePrompt(prompt) {
+    return /\bhouse\b|\bhome\b|\bresidential\b/.test(prompt.toLowerCase());
+  }
+
+  function addMessage(role, text) {
+    const message = document.createElement("div");
+    message.className = role === "user" ? "u" : "a";
+    message.textContent = text;
+    col.appendChild(message);
+  }
+
+  function renderOptions() {
+    const options = document.createElement("div");
+    options.className = "a";
+    options.innerHTML = `
+      <div>Which house concept tier should I show?</div>
+      <div class="steps" style="gap:10px">
+        ${Object.entries(tiers).map(([tier, item]) => `
+          <button class="card sans" type="button" data-forgex-house-tier="${tier}"
+            style="text-align:left;color:inherit;cursor:pointer">
+            <b>${item.name}</b><div>${item.price}</div><small>${item.specs}</small>
+          </button>
+        `).join("")}
+      </div>`;
+    col.appendChild(options);
+  }
+
+  function renderSummary(tier) {
+    const item = tiers[tier];
+    if (!item) return;
+    const summary = document.createElement("div");
+    summary.className = "a";
+    summary.innerHTML = `
+      <div class="card sans">
+        <div class="steps"><span class="st now"><s>✓</s><span>House concept</span></span></div>
+        <div class="nums">
+          <div><span>House tier</span><b>${item.name}</b></div>
+          <div><span>Indicative budget</span><b>${item.price}</b></div>
+        </div>
+        <div class="rows"><div class="row"><span>Key specs</span><span>${item.specs}</span></div></div>
+        <div class="acts"><button class="btn" type="button" data-forgex-show-house="${tier}">Show 3D Model</button></div>
+      </div>`;
+    col.appendChild(summary);
+    document.getElementById("feed").scrollTop = document.getElementById("feed").scrollHeight;
+  }
+
+  form.addEventListener("submit", event => {
+    const prompt = input.value.trim();
+    if (!prompt || !isHousePrompt(prompt)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    input.value = "";
+    if (col.querySelector("[data-forgex-house-tier], [data-forgex-show-house]")) {
+      col.replaceChildren();
+    }
+    addMessage("user", prompt);
+    const tier = detectedTier(prompt);
+    if (tier) {
+      const item = tiers[tier];
+      addMessage("assistant", `I’ve selected the ${item.name} house concept at ${item.price}. ${item.specs}.`);
+      renderSummary(tier);
+    } else {
+      addMessage("assistant", "I can show one of three reference house concepts. Choose an indicative budget tier:");
+      renderOptions();
+    }
+    document.getElementById("feed").scrollTop = document.getElementById("feed").scrollHeight;
+  }, true);
+
+  col.addEventListener("click", event => {
+    const tierButton = event.target.closest("[data-forgex-house-tier]");
+    if (tierButton) {
+      event.stopImmediatePropagation();
+      const tier = tierButton.dataset.forgexHouseTier;
+      const item = tiers[tier];
+      col.replaceChildren();
+      addMessage("assistant", `You selected the ${item.name} house concept at ${item.price}. ${item.specs}.`);
+      renderSummary(tier);
+      return;
+    }
+    const showButton = event.target.closest("[data-forgex-show-house]");
+    if (showButton) {
+      event.stopImmediatePropagation();
+      showHouseModel(showButton.dataset.forgexShowHouse);
+    }
+  }, true);
+})();
+</script></body></html>

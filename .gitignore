@@ -1,0 +1,14 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+data/projects/
+exports/
+*.stl
+.streamlit/secrets.toml
+.DS_Store

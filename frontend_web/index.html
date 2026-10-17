@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0B0C">
+  <title>ForgeX Engineering Workbench</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Ctext%20y='14'%20font-size='14'%3E%F0%9F%94%A7%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0B0B0C;
+      --card: #161617;
+      --card-hover: #232325;
+      --line: #2e2e31;
+      --mint: #E5252F;
+      --text: #f3f3f3;
+      --muted: #9a9a9f;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .forgex-header {
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      min-height: 64px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #000;
+    }
+
+    .forgex-brand {
+      flex: 0 0 auto;
+      font-size: 21px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .forgex-brand span { color: var(--mint); }
+
+    .forgex-tabs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .forgex-tab {
+      min-height: 40px;
+      padding: 8px 15px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .forgex-tab:hover {
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .forgex-tab[aria-selected="true"] {
+      border-color: var(--line);
+      background: var(--card-hover);
+      color: var(--text);
+    }
+
+    .forgex-tab:focus-visible {
+      outline: 2px solid var(--mint);
+      outline-offset: 2px;
+    }
+
+    .forgex-content {
+      flex: 1 1 auto;
+      min-height: 0;
+      position: relative;
+    }
+
+    .forgex-panel {
+      position: absolute;
+      inset: 0;
+      display: none;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .forgex-panel.active { display: block; }
+
+    .forgex-studio iframe,
+    .forgex-3d iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: var(--bg);
+    }
+
+    @media (max-width: 560px) {
+      .forgex-header {
+        gap: 12px;
+        min-height: 58px;
+        padding: 8px 12px;
+      }
+
+      .forgex-brand { font-size: 18px; }
+      .forgex-tabs { flex: 1; gap: 5px; }
+      .forgex-tab { flex: 1; padding: 7px 8px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="forgex-header">
+    <div class="forgex-brand" aria-label="ForgeX">Forge<span>X</span></div>
+    <nav class="forgex-tabs" role="tablist" aria-label="ForgeX tools">
+      <button
+        class="forgex-tab"
+        id="tab-studio"
+        type="button"
+        role="tab"
+        aria-controls="panel-studio"
+        aria-selected="true"
+        tabindex="0"
+      >Design Studio</button>
+      <button
+        class="forgex-tab"
+        id="tab-viewer"
+        type="button"
+        role="tab"
+        aria-controls="panel-viewer"
+        aria-selected="false"
+        tabindex="-1"
+      >3D Viewer</button>
+    </nav>
+  </header>
+  <main class="forgex-content">
+    <section
+      class="forgex-panel forgex-studio active"
+      id="panel-studio"
+      role="tabpanel"
+      aria-labelledby="tab-studio"
+    >
+      <iframe
+        id="studio-frame"
+        title="ForgeX Design Studio"
+        src="/app/studio.html"
+        loading="eager"
+      ></iframe>
+    </section>
+    <section
+      class="forgex-panel forgex-3d"
+      id="panel-viewer"
+      role="tabpanel"
+      aria-labelledby="tab-viewer"
+      hidden
+    >
+      <iframe
+        id="viewer-frame"
+        title="ForgeX Interactive 3D Viewer"
+        src="/app/try.html"
+        loading="eager"
+      ></iframe>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const tabs = [...document.querySelectorAll('[role="tab"]')];
+      const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+      const viewerFrame = document.getElementById("viewer-frame");
+
+      function activateTab(tab, persist = true) {
+        tabs.forEach((item, index) => {
+          const selected = item === tab;
+          item.setAttribute("aria-selected", String(selected));
+          item.tabIndex = selected ? 0 : -1;
+          panels[index].classList.toggle("active", selected);
+          panels[index].hidden = !selected;
+        });
+
+        if (persist) {
+          try {
+            localStorage.setItem("forgex-active-tool", tab.id);
+          } catch (error) {
+            console.warn("Could not save the selected ForgeX tool.", error);
+          }
+        }
+
+        if (tab.id === "tab-viewer") {
+          requestAnimationFrame(() => {
+            viewerFrame.contentWindow?.dispatchEvent(new Event("resize"));
+          });
+        }
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => activateTab(tab));
+        tab.addEventListener("keydown", event => {
+          if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+          event.preventDefault();
+          const nextIndex = event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? tabs.length - 1
+              : (index + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length;
+          tabs[nextIndex].focus();
+          activateTab(tabs[nextIndex]);
+        });
+      });
+
+      try {
+        const savedTabId = localStorage.getItem("forgex-active-tool");
+        const savedTab = tabs.find(tab => tab.id === savedTabId);
+        if (savedTab) activateTab(savedTab, false);
+      } catch (error) {
+        console.warn("Could not restore the selected ForgeX tool.", error);
+      }
+    })();
+  </script>
+</body>
+</html>

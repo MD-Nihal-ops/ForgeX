@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0B0C">
+  <title>ForgeX Workbench</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0B0B0C;
+      --card: #161617;
+      --mint: #E5252F;
+      --text: #f3f3f3;
+      --line: #1f1f22;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button { color: inherit; font: inherit; cursor: pointer; }
+    button:focus-visible {
+      outline: 2px solid #E5252F;
+      outline-offset: 2px;
+    }
+
+    .forgex-shell {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .forgex-sidebar {
+      z-index: 3;
+      display: flex;
+      min-width: 0;
+      height: 100%;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid var(--line);
+      background: #0A0A0A;
+    }
+
+    .sidebar-head {
+      display: flex;
+      min-height: 64px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 14px 0 18px;
+    }
+
+    .forgex-logo {
+      color: #fff;
+      font-size: 23px;
+      font-weight: 650;
+      letter-spacing: -1px;
+      white-space: nowrap;
+    }
+    .forgex-logo span { color: #E5252F; }
+
+    .icon-button {
+      display: inline-grid;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: #A1A1AA;
+      cursor: pointer;
+      transition: color 150ms ease, background-color 150ms ease;
+    }
+    .icon-button:hover { background: #17171a; color: #fff; }
+    .icon-button svg,
+    .sidebar-nav svg,
+    .sidebar-user svg,
+    .forgex-tab svg,
+    .ribbon-action svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .sidebar-scroll {
+      min-height: 0;
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-color: #3a3a3d transparent;
+      scrollbar-width: thin;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 6px 10px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      min-width: 0;
+      min-height: 44px;
+      align-items: center;
+      gap: 12px;
+      padding: 7px 10px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: #f3f3f3;
+      text-align: left;
+      white-space: nowrap;
+      transition: background-color 150ms ease;
+    }
+    .sidebar-link:hover { background: #161617; }
+    .sidebar-link .link-icon {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 50%;
+      background: #232325;
+    }
+
+    .sidebar-section {
+      display: flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px 5px;
+      color: #A1A1AA;
+      font-size: 13px;
+    }
+
+    .sidebar-history {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 0 10px 12px;
+    }
+    .history-item {
+      display: flex;
+      min-width: 0;
+      min-height: 38px;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      overflow: hidden;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: #f3f3f3;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .history-item:hover { background: #161617; }
+    .history-item.is-current { background: #232325; }
+    .history-item span:last-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .history-dot {
+      width: 6px;
+      height: 6px;
+      flex: 0 0 auto;
+      border: 1px solid #A1A1AA;
+      border-radius: 50%;
+    }
+
+    .sidebar-user {
+      display: flex;
+      min-height: 66px;
+      align-items: center;
+      gap: 10px;
+      margin-top: auto;
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      color: #A1A1AA;
+    }
+    .user-avatar {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 50%;
+      background: #232325;
+      color: #E5252F;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .user-label {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      color: #f3f3f3;
+      font-size: 14px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .forgex-main {
+      display: flex;
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .forgex-ribbon {
+      display: flex;
+      height: 56px;
+      min-height: 56px;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: #0A0A0A;
+    }
+
+    .mobile-menu { display: none; }
+
+    .forgex-tabbar {
+      display: flex;
+      min-width: 0;
+      height: 100%;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+    }
+    .forgex-tabbar::-webkit-scrollbar { display: none; }
+
+    .forgex-tab {
+      display: inline-flex;
+      height: 40px;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: #A1A1AA;
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: color 150ms ease, background-color 150ms ease;
+    }
+    .forgex-tab svg { width: 16px; height: 16px; }
+    .forgex-tab:hover { background: #17171a; color: #fff; }
+    .forgex-tab[aria-selected="true"] {
+      background: #212124;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .ribbon-actions {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .ribbon-action {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px solid #2a2a2e;
+      border-radius: 10px;
+      background: transparent;
+      color: #f3f3f3;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: color 150ms ease, background-color 150ms ease;
+    }
+    .ribbon-action:hover { background: #17171a; }
+    .ribbon-action.more { width: 36px; min-height: 36px; padding: 0; border-color: transparent; }
+    .ribbon-action.download {
+      border-color: #F4F4F5;
+      background: #F4F4F5;
+      color: #0A0A0A;
+      font-weight: 600;
+    }
+    .ribbon-action.download:hover { border-color: #fff; background: #fff; }
+    .ribbon-action.download svg { stroke: currentColor; }
+    .ribbon-action:focus-visible,
+    .icon-button:focus-visible,
+    .sidebar-link:focus-visible,
+    .history-item:focus-visible {
+      outline: 2px solid #E5252F;
+      outline-offset: 2px;
+    }
+
+    .forgex-workspace {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      flex: 1;
+      overflow: auto;
+      background: var(--bg);
+    }
+    .forgex-panel {
+      position: absolute;
+      inset: 0;
+      display: none;
+      min-width: 0;
+      min-height: 0;
+    }
+    .forgex-panel.is-active { display: block; }
+    .forgex-panel iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: var(--bg);
+    }
+
+    .sidebar-collapsed { grid-template-columns: 64px minmax(0, 1fr); }
+    .sidebar-collapsed .sidebar-head { justify-content: center; padding: 0 6px; }
+    .sidebar-collapsed .forgex-logo { font-size: 20px; }
+    .sidebar-collapsed .forgex-logo .logo-forge { display: none; }
+    .sidebar-collapsed .sidebar-nav { padding-right: 6px; padding-left: 6px; }
+    .sidebar-collapsed .sidebar-link { justify-content: center; padding: 7px 0; }
+    .sidebar-collapsed .link-label,
+    .sidebar-collapsed .sidebar-section span,
+    .sidebar-collapsed .history-item span:last-child,
+    .sidebar-collapsed .user-label { display: none; }
+    .sidebar-collapsed .sidebar-section { justify-content: center; padding-right: 0; padding-left: 0; }
+    .sidebar-collapsed .sidebar-history { align-items: center; padding-right: 0; padding-left: 0; }
+    .sidebar-collapsed .history-item { width: 42px; justify-content: center; padding: 8px; }
+    .sidebar-collapsed .sidebar-user { justify-content: center; gap: 5px; padding-right: 4px; padding-left: 4px; }
+
+    .sidebar-backdrop { display: none; }
+    .forgex-toast {
+      position: fixed;
+      z-index: 10;
+      right: 20px;
+      bottom: 20px;
+      padding: 9px 14px;
+      transform: translateY(8px);
+      border: 1px solid #2e2e31;
+      border-radius: 10px;
+      background: #232325;
+      color: #f3f3f3;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+    .forgex-toast.is-visible { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 767px) {
+      .forgex-shell { display: block; }
+      .forgex-sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 260px;
+        height: 100vh;
+        height: 100dvh;
+        transform: translateX(-100%);
+        transition: transform 180ms ease;
+      }
+      .mobile-open .forgex-sidebar { transform: translateX(0); }
+      .mobile-open .sidebar-backdrop {
+        position: fixed;
+        z-index: 2;
+        inset: 0;
+        display: block;
+        border: 0;
+        background: rgb(0 0 0 / 55%);
+      }
+      .forgex-main { width: 100%; }
+      .mobile-menu { display: inline-grid; }
+      .sidebar-collapsed { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 639px) {
+      .forgex-ribbon { gap: 4px; padding: 0 8px; }
+      .forgex-tabbar { gap: 2px; }
+      .forgex-tab { width: 40px; padding: 8px; }
+      .forgex-tab span,
+      .ribbon-action .action-label { display: none; }
+      .ribbon-actions { gap: 2px; }
+      .ribbon-action { width: 36px; min-height: 36px; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="forgex-shell" id="forgex-shell">
+    <aside class="forgex-sidebar" aria-label="ForgeX sidebar">
+      <div class="sidebar-head">
+        <div class="forgex-logo" aria-label="ForgeX"><span class="logo-forge">Forge</span><span>X</span></div>
+        <button class="icon-button" id="sidebar-collapse" type="button"
+          aria-label="Collapse sidebar" title="Collapse sidebar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+        </button>
+      </div>
+      <div class="sidebar-scroll">
+        <nav class="sidebar-nav" aria-label="Workspace">
+          <button class="sidebar-link" id="sidebar-new" type="button" title="New">
+            <span class="link-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+            <span class="link-label">New</span>
+          </button>
+          <button class="sidebar-link" type="button" data-studio-nav="Projects" title="Projects">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M6 4h12M5 8l1 12h12l1-12"/></svg>
+            <span class="link-label">Projects</span>
+          </button>
+          <button class="sidebar-link" type="button" data-studio-nav="Reports" title="Reports">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v4h4"/></svg>
+            <span class="link-label">Reports</span>
+          </button>
+          <button class="sidebar-link" type="button" data-studio-nav="Catalog" title="Catalog">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/></svg>
+            <span class="link-label">Catalog</span>
+          </button>
+          <button class="sidebar-link" type="button" data-studio-nav="Settings" title="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+            <span class="link-label">Settings</span>
+          </button>
+        </nav>
+        <div class="sidebar-section"><span>Designs and checks</span></div>
+        <div class="sidebar-history" id="sidebar-history" aria-label="Designs and checks"></div>
+      </div>
+      <div class="sidebar-user">
+        <span class="user-avatar">YA</span>
+        <span class="user-label">Your workspace · Free</span>
+        <span class="icon-button" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </span>
+      </div>
+    </aside>
+    <button class="sidebar-backdrop" id="sidebar-backdrop" type="button"
+      aria-label="Close sidebar"></button>
+    <div class="forgex-main">
+      <header class="forgex-ribbon">
+        <button class="icon-button mobile-menu" id="mobile-menu" type="button"
+          aria-label="Open sidebar" title="Open sidebar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <nav class="forgex-tabbar" role="tablist" aria-label="ForgeX tools">
+          <button class="forgex-tab" id="tab-studio" type="button" role="tab"
+            aria-selected="true" aria-controls="panel-studio" tabindex="0" title="Design Studio" aria-label="Design Studio">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3Z"/><path d="m19 14 .9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14Z"/></svg>
+            <span>Design Studio</span>
+          </button>
+          <button class="forgex-tab" id="tab-viewer" type="button" role="tab"
+            aria-selected="false" aria-controls="panel-viewer" tabindex="-1" title="3D Viewer" aria-label="3D Viewer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4.3 7.8 7.7 4.4 7.7-4.4M12 12.2V21"/></svg>
+            <span>3D Viewer</span>
+          </button>
+          <button class="forgex-tab" id="tab-wireframe" type="button" role="tab"
+            aria-selected="false" aria-controls="panel-wireframe" tabindex="-1" title="Wireframe" aria-label="Wireframe">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 8v8l-9 5-9-5V8l9-5Z"/><path d="m3.5 8.2 8.5 4.7 8.5-4.7M12 12.9V21M7.5 5.5l9 5"/></svg>
+            <span>Wireframe</span>
+          </button>
+        </nav>
+        <div class="ribbon-actions">
+          <button class="ribbon-action more" id="more-options" type="button"
+            aria-label="More options" title="More options">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+          </button>
+          <button class="ribbon-action" id="share-link" type="button" title="Copy link">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+            <span class="action-label">Share</span>
+          </button>
+          <button class="ribbon-action download" id="download-chat" type="button" title="Download chat">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg>
+            <span class="action-label">Download chat</span>
+          </button>
+        </div>
+      </header>
+      <main class="forgex-workspace">
+        <section class="forgex-panel is-active forgex-studio" id="panel-studio"
+          role="tabpanel" aria-labelledby="tab-studio">
+          <iframe id="studio-iframe" title="ForgeX Design Studio" src="/app/studio.html?embedded=1"></iframe>
+        </section>
+        <section class="forgex-panel forgex-3d" id="panel-viewer"
+          role="tabpanel" aria-labelledby="tab-viewer" hidden>
+          <iframe id="viewer-iframe" title="ForgeX 3D Viewer" src="/app/try.html"></iframe>
+        </section>
+        <section class="forgex-panel forgex-wireframe" id="panel-wireframe"
+          role="tabpanel" aria-labelledby="tab-wireframe" hidden>
+          <iframe id="house-model-iframe" title="ForgeX House Wireframe"
+            src="/app/Models/house_model.html"></iframe>
+        </section>
+      </main>
+    </div>
+    <div class="forgex-toast" id="shell-toast" role="status" aria-live="polite"></div>
+  </div>
+  <script>
+    (() => {
+      const shell = document.getElementById("forgex-shell");
+      const tabs = [...document.querySelectorAll('[role="tab"]')];
+      const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+      const studioIframe = document.getElementById("studio-iframe");
+      const houseModelIframe = document.getElementById("house-model-iframe");
+      const sidebarHistory = document.getElementById("sidebar-history");
+      let pendingHouseTier = null;
+      let toastTimer;
+
+      function toast(message) {
+        const node = document.getElementById("shell-toast");
+        node.textContent = message;
+        node.classList.add("is-visible");
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => node.classList.remove("is-visible"), 1800);
+      }
+
+      function validTier(tier) {
+        return ["economy", "comfort", "premium"].includes(tier);
+      }
+
+      function forwardHouseTier(tier) {
+        if (!validTier(tier)) return;
+        if (!houseModelIframe.contentWindow) {
+          pendingHouseTier = tier;
+          return;
+        }
+        houseModelIframe.contentWindow.postMessage({type: "LOAD_HOUSE", tier}, "*");
+        pendingHouseTier = null;
+      }
+
+      function activateTab(tab) {
+        tabs.forEach((item, index) => {
+          const selected = item === tab;
+          item.setAttribute("aria-selected", String(selected));
+          item.tabIndex = selected ? 0 : -1;
+          panels[index].classList.toggle("is-active", selected);
+          panels[index].hidden = !selected;
+        });
+      }
+
+      function studioDocument() {
+        try {
+          return studioIframe.contentDocument;
+        } catch (error) {
+          toast("Design Studio is not available in this window.");
+          return null;
+        }
+      }
+
+      function mirrorDesignHistory() {
+        const document = studioDocument();
+        const source = document && document.getElementById("hist");
+        if (!source) return;
+
+        sidebarHistory.replaceChildren();
+        source.querySelectorAll(".hi").forEach(item => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `history-item${item.classList.contains("on") ? " is-current" : ""}`;
+          button.dataset.historyIndex = item.dataset.i;
+          button.title = item.innerText.trim();
+          const dot = document.createElement("span");
+          dot.className = "history-dot";
+          dot.setAttribute("aria-hidden", "true");
+          const label = document.createElement("span");
+          label.textContent = item.innerText.trim();
+          button.append(dot, label);
+          sidebarHistory.append(button);
+        });
+      }
+
+      function setupStudioHistory() {
+        const document = studioDocument();
+        const source = document && document.getElementById("hist");
+        if (!source) return;
+        mirrorDesignHistory();
+        new MutationObserver(mirrorDesignHistory).observe(source, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ["class"]
+        });
+      }
+
+      function invokeStudioControl(selector) {
+        const document = studioDocument();
+        const control = document && document.querySelector(selector);
+        if (!control) {
+          toast("Design Studio is not ready yet.");
+          return;
+        }
+        control.click();
+      }
+
+      function validStudioHistoryItem(index) {
+        return Number.isInteger(index) && index >= 0;
+      }
+
+      function downloadChat() {
+        if (document.getElementById("panel-studio").hidden) {
+          toast("Open Design Studio to download its conversation.");
+          return;
+        }
+        const studioDoc = studioDocument();
+        const content = studioDoc && studioDoc.getElementById("col");
+        const text = content ? content.innerText.trim() : "";
+        if (!text) {
+          toast("There is no conversation to download yet.");
+          return;
+        }
+        const date = new Date().toISOString().slice(0, 10);
+        const file = new Blob([`# ForgeX conversation\n\n${text}\n`], {
+          type: "text/markdown;charset=utf-8"
+        });
+        const url = URL.createObjectURL(file);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `forgex-chat-${date}.md`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast("Chat downloaded");
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => activateTab(tab));
+        tab.addEventListener("keydown", event => {
+          if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+          event.preventDefault();
+          const next = event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? tabs.length - 1
+              : (index + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length;
+          tabs[next].focus();
+          activateTab(tabs[next]);
+        });
+      });
+
+      document.getElementById("sidebar-collapse").addEventListener("click", () => {
+        if (window.matchMedia("(max-width: 767px)").matches) {
+          shell.classList.remove("mobile-open");
+          return;
+        }
+        shell.classList.toggle("sidebar-collapsed");
+      });
+      document.getElementById("mobile-menu").addEventListener("click", () => {
+        shell.classList.add("mobile-open");
+      });
+      document.getElementById("sidebar-backdrop").addEventListener("click", () => {
+        shell.classList.remove("mobile-open");
+      });
+      document.getElementById("sidebar-new").addEventListener("click", () => {
+        activateTab(document.getElementById("tab-studio"));
+        invokeStudioControl("#new");
+        shell.classList.remove("mobile-open");
+      });
+      document.querySelectorAll("[data-studio-nav]").forEach(button => {
+        button.addEventListener("click", () => {
+          const label = button.dataset.studioNav;
+          invokeStudioControl(`[data-n="${label}"]`);
+          shell.classList.remove("mobile-open");
+        });
+      });
+      sidebarHistory.addEventListener("click", event => {
+        const button = event.target.closest("[data-history-index]");
+        if (!button) return;
+        const index = Number(button.dataset.historyIndex);
+        if (!validStudioHistoryItem(index)) return;
+        activateTab(document.getElementById("tab-studio"));
+        invokeStudioControl(`#hist .hi[data-i="${index}"]`);
+        shell.classList.remove("mobile-open");
+      });
+      document.getElementById("more-options").addEventListener("click", () => {
+        toast("No additional options are available yet.");
+      });
+      document.getElementById("share-link").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          toast("Link copied");
+        } catch (error) {
+          toast("Could not copy link. Check clipboard permissions.");
+        }
+      });
+      document.getElementById("download-chat").addEventListener("click", downloadChat);
+
+      studioIframe.addEventListener("load", setupStudioHistory);
+      houseModelIframe.addEventListener("load", () => {
+        if (pendingHouseTier) forwardHouseTier(pendingHouseTier);
+      });
+
+      window.addEventListener("message", event => {
+        if (event.origin !== window.location.origin) return;
+        const data = event.data;
+        if (!data || data.type !== "SHOW_HOUSE_MODEL" || !validTier(data.tier)) return;
+        pendingHouseTier = data.tier;
+        activateTab(document.getElementById("tab-wireframe"));
+        forwardHouseTier(data.tier);
+      });
+    })();
+  </script>
+</body>
+</html>

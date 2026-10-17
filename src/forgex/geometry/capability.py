@@ -1,0 +1,1 @@
+"""CAD availability probe."""

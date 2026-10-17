@@ -1,0 +1,1 @@
+"""Design alternative card."""
